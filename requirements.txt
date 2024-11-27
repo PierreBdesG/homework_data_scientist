@@ -3,4 +3,4 @@ diffusers
 numpy
 pillow
 fire
-
+gradio

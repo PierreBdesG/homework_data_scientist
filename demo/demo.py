@@ -13,7 +13,7 @@ def run():
                      "stable-diffusion-v1-5/stable-diffusion-inpainting",
                      "stabilityai/stable-diffusion-3.5-large",
                      "black-forest-labs/FLUX.1-schnell"],
-            value="diffusers/stable-diffusion-xl-1.0-inpainting-0.1"
+            value="stable-diffusion-v1-5/stable-diffusion-inpainting"
         )
 
         charged_models_button = gr.Button("Charger le modèle")
