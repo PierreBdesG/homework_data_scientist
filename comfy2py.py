@@ -15,6 +15,7 @@ def run(prompt: Union[List[str], str],
         output_dir: Optional[str] = "",
         num_images_per_prompt: Optional[int] = 1,
         random_seed_after_every_gen: Optional[bool] = True,
+        sampler_name: Optional[str] = "normal",
         device: Optional[str] = None):
 
     generator = Generator(
@@ -29,12 +30,11 @@ def run(prompt: Union[List[str], str],
         output_dir = output_dir,
         num_images_per_prompt = num_images_per_prompt,
         random_seed_after_every_gen = random_seed_after_every_gen,
+        sampler_name = sampler_name,
         device = device
     )
 
-    generator.load_model()
-    generator.predict()
-    generator.save_images()
+    generator.run()
 
 if __name__ == "__main__":
     fire.Fire(run)

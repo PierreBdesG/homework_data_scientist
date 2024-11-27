@@ -7,6 +7,15 @@ from numpy.random import randint
 from diffusers import StableDiffusionPipeline
 import torch
 
+SAMPLER_NAME = [
+        "lms",
+        "heun",
+        "euler",
+        "euler-ancestral",
+        "dpm",
+        "ddim",
+]
+
 class Generator:
     def __init__(self,
                  prompts: Union[List[str], str],
@@ -20,6 +29,7 @@ class Generator:
                  output_dir: [str],
                  num_images_per_prompt: int,
                  random_seed_after_every_gen: [bool],
+                 sampler_name: str,
                  device: str
                  ):
         self.prompts = prompts
@@ -52,6 +62,10 @@ class Generator:
             output_dir = "output_images"
         self.output_dir = output_dir
 
+        if sampler_name not in SAMPLER_NAME:
+            raise ValueError(f"sampler_name must be one of {SAMPLER_NAME} not {sampler_name}")
+        self.sampler_name = sampler_name
+
         self.device = device
 
         self.pipe: StableDiffusionPipeline = None
@@ -60,6 +74,7 @@ class Generator:
 
     def load_model(self):
         self.pipe = StableDiffusionPipeline.from_pretrained(self.model_name).to(self.device)
+        self.pipe.sampler_name = self.sampler_name
 
     def predict(self):
         with torch.no_grad():
