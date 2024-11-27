@@ -1,8 +1,8 @@
-from typing import Union, List, Tuple, Optional
+from typing import Union, List, Optional
 
 import fire
 
-from Generator import Generator
+from generator.generator import Generator
 
 def run(prompt: Union[List[str], str],
         model_name: Optional[str] = "runwayml/stable-diffusion-v1-5",
