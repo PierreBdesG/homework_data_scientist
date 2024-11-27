@@ -4,7 +4,8 @@ import time
 
 from PIL import Image
 from numpy.random import randint
-from diffusers import StableDiffusionPipeline
+from diffusers import StableDiffusionPipeline, DDIMScheduler, LMSDiscreteScheduler, PNDMScheduler, \
+    EulerDiscreteScheduler, EulerAncestralDiscreteScheduler, HeunDiscreteScheduler
 import torch
 
 SAMPLER_NAME = [
@@ -15,6 +16,17 @@ SAMPLER_NAME = [
         "dpm",
         "ddim",
 ]
+
+SCHEDULER_NAME = [
+    "DDIMScheduler",
+    "LMSDiscreteScheduler",
+    "PNDMScheduler",
+    "EulerDiscreteScheduler",
+    "EulerAncestralDiscreteScheduler",
+    "HeunDiscreteScheduler",
+]
+
+
 
 class Generator:
     def __init__(self,
@@ -30,6 +42,7 @@ class Generator:
                  num_images_per_prompt: int,
                  random_seed_after_every_gen: [bool],
                  sampler_name: str,
+                 scheduler: str,
                  device: str
                  ):
         self.prompts = prompts
@@ -66,6 +79,14 @@ class Generator:
             raise ValueError(f"sampler_name must be one of {SAMPLER_NAME} not {sampler_name}")
         self.sampler_name = sampler_name
 
+        if scheduler in SCHEDULER_NAME:
+            self.scheduler = self.get_scheduler(scheduler)
+        elif scheduler == "normal":
+            self.scheduler = None
+        else:
+            raise ValueError(f"scheduler must be one of {SCHEDULER_NAME} not {scheduler}")
+
+
         self.device = device
 
         self.pipe: StableDiffusionPipeline = None
@@ -75,6 +96,23 @@ class Generator:
     def load_model(self):
         self.pipe = StableDiffusionPipeline.from_pretrained(self.model_name).to(self.device)
         self.pipe.sampler_name = self.sampler_name
+        if self.scheduler:
+            self.pipe.scheduler = self.scheduler
+
+    @staticmethod
+    def get_scheduler(scheduler_name):
+        if scheduler_name == "DDIMScheduler":
+            return DDIMScheduler()
+        elif scheduler_name == "LMSDiscreteScheduler":
+            return LMSDiscreteScheduler()
+        elif scheduler_name == "PNDMScheduler":
+            return PNDMScheduler()
+        elif scheduler_name == "EulerDiscreteScheduler":
+            return EulerDiscreteScheduler()
+        elif scheduler_name == "EulerAncestralDiscreteScheduler":
+            return EulerAncestralDiscreteScheduler()
+        elif scheduler_name == "HeunDiscreteScheduler":
+            return HeunDiscreteScheduler()
 
     def predict(self):
         with torch.no_grad():

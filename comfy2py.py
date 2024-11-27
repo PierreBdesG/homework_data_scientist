@@ -8,14 +8,15 @@ def run(prompt: Union[List[str], str],
         model_name: Optional[str] = "runwayml/stable-diffusion-v1-5",
         neg_prompt: Optional[Union[List[str], str]] = "",
         steps: Optional[int] = 50,
-        height: Optional[int] = 1024,
-        width: Optional[int] = 1024,
+        height: Optional[int] = 512,
+        width: Optional[int] = 512,
         seed: int = None,
         cfg: Optional[float] = 8,
         output_dir: Optional[str] = "",
         num_images_per_prompt: Optional[int] = 1,
         random_seed_after_every_gen: Optional[bool] = True,
-        sampler_name: Optional[str] = "normal",
+        sampler_name: Optional[str] = "euler",
+        scheduler: Optional[str] = "normal",
         device: Optional[str] = None):
 
     generator = Generator(
@@ -31,6 +32,7 @@ def run(prompt: Union[List[str], str],
         num_images_per_prompt = num_images_per_prompt,
         random_seed_after_every_gen = random_seed_after_every_gen,
         sampler_name = sampler_name,
+        scheduler = scheduler,
         device = device
     )
 
