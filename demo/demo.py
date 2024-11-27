@@ -55,7 +55,7 @@ def run():
             outputs=[output_image1, output_image2, output_time]
         )
 
-    iface.launch(debug=True)
+    iface.launch(debug=True, share=True)
 
 if __name__ == "__main__":
     run()
