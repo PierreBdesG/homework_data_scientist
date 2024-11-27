@@ -2,5 +2,4 @@ torch
 diffusers
 numpy
 pillow
-fire
 gradio
