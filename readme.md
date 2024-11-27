@@ -9,7 +9,7 @@ Ce repo permet de générer des images à partir de lignes de commande en utilis
 Vous pouvez générer une image en exécutant la commande suivante :
 
 ```bash
-python comfy2py.py --prompt="votre prompt ici" --neg-prompt="votre prompt négatif ici" --steps=50
+python comfy2py.py --prompt="une magnifique forêt en automne" --neg-prompt="pas de neige, pas de brouillard"
 ```
 
 ## Arguments
