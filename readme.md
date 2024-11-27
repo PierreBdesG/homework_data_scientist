@@ -28,7 +28,7 @@ python comfy2py.py --prompt="a beautiful forest in autumn" --neg-prompt="no snow
 
 ` --model_name`
 - **Type** : Optional[str]
-- **Description** : Le nom du modèle de diffusion à utiliser. La valeur par défaut est "runwayml/stable-diffusion-v1-5", mais vous pouvez utiliser un autre modèle compatible avec la class `StableDiffusionPipeline`.
+- **Description** : Le nom du modèle de diffusion à utiliser. La valeur par défaut est "runwayml/stable-diffusion-v1-5", mais vous pouvez utiliser un autre modèle compatible avec la class `DiffusionPipeline`.
 
 ` --height`
 - **Type** : Optional[int]

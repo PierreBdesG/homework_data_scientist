@@ -4,7 +4,7 @@ import time
 
 from PIL import Image
 from numpy.random import randint
-from diffusers import StableDiffusionPipeline, DDIMScheduler, LMSDiscreteScheduler, PNDMScheduler, \
+from diffusers import DiffusionPipeline, DDIMScheduler, LMSDiscreteScheduler, PNDMScheduler, \
     EulerDiscreteScheduler, EulerAncestralDiscreteScheduler, HeunDiscreteScheduler
 import torch
 
@@ -89,12 +89,12 @@ class Generator:
 
         self.device = device
 
-        self.pipe: StableDiffusionPipeline = None
+        self.pipe: DiffusionPipeline = None
         self.images: List[Image] = []
 
 
     def load_model(self):
-        self.pipe = StableDiffusionPipeline.from_pretrained(self.model_name).to(self.device)
+        self.pipe = DiffusionPipeline.from_pretrained(self.model_name).to(self.device)
         self.pipe.sampler_name = self.sampler_name
         if self.scheduler:
             self.pipe.scheduler = self.scheduler
