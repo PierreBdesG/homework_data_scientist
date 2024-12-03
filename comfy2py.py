@@ -13,9 +13,13 @@ from utils import pass_argument_to_workflow
 from ComfyUI.execution import PromptExecutor
 from ComfyUI.server import PromptServer
 
-def execute(workflow):
+def execute(args):
+    with open(args.workflow_path, 'r') as file:
+        workflow = json.load(file)
+    workflow, output = pass_argument_to_workflow(workflow, args)
+
     e = PromptExecutor(PromptServer(None))
-    e.execute(workflow, "", execute_outputs=["9"])
+    e.execute(workflow, "", execute_outputs=output)
 
 if __name__ == "__main__":
     # Configuration d'argparse
@@ -40,7 +44,4 @@ if __name__ == "__main__":
     parser.add_argument("--device", type=str, default=None, help="Device to use (e.g., 'cuda').")
 
     args = parser.parse_args()
-    with open(args.workflow_path, 'r') as file:
-        workflow = json.load(file)
-    workflow = pass_argument_to_workflow(workflow, args)
-    execute(workflow)
+    execute(args)

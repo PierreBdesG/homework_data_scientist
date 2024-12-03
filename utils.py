@@ -34,4 +34,4 @@ def pass_argument_to_workflow(workflow: Dict, args) -> Union[Dict, List[str]]:
 
     save_node = get_nodes_from_class_type(workflow, "SaveImage")
     workflow[save_node]["inputs"]["filename_prefix"] = args.filename_prefix
-    return workflow
+    return workflow, [save_node]
