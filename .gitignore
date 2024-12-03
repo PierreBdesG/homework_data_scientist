@@ -2,3 +2,5 @@
 .gradio
 .idea/
 generator/__pycache__/
+__pycache__/
+ComfyUI/models/checkpoints/v1-5-pruned-emaonly.safetensors

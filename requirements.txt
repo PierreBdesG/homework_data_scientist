@@ -3,3 +3,5 @@ diffusers
 numpy
 pillow
 gradio
+
+-r ComfyUI/requirements.txt
