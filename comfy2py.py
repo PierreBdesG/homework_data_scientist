@@ -36,7 +36,7 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=1, help="Seed for random generation.")
     parser.add_argument("--cfg", type=float, default=8.0, help="Classifier-Free Guidance scale.")
     parser.add_argument("--denois", type=float, default=1, help="Denois quantity")
-    parser.add_argument("--filename-prefix", type=str, default="ComfyUI", help="Directory to save the generated images.")
+    parser.add_argument("--filename-prefix", type=str, default="ComfyUI", help="Prefix of the save images.")
     parser.add_argument("--num-images-per-prompt", type=int, default=1, help="Number of images to generate per prompt.")
     parser.add_argument("--random-seed_after-every-gen", type=bool, default=True, help="Randomize seed after every generation.")
     parser.add_argument("--sampler-name", type=str, default="euler", help="Sampler to use.")

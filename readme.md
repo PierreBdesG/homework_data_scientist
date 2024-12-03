@@ -56,9 +56,9 @@ python comfy2py.py --prompt="a beautiful forest in autumn" --neg-prompt="no snow
 - **Type** : Optional[float]
 - **Description** : Classifier-Free Guidance permet de contrôler la fidélité du modèle par rapport aux prompts. La valeur par défaut est 8.
 
-` --output-dir`
+` --filename-prefix`
 - **Type** : Optional[str]
-- **Description** : Le répertoire de sortie où l'image générée sera enregistrée. Par défaut, l'image est enregistrée dans `output_images`
+- **Description** : Le préfix de l'image généré, par default `ComfyUI`
 
 ` --num-images-per-prompt`
 - **Type** : Optional[int]
