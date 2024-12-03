@@ -1,8 +1,8 @@
 import torch
-import ComfyUI.model_management
-import ComfyUI.sampler_helpers
-import ComfyUI.samplers
-import ComfyUI.utils
+import comfy.model_management
+import comfy.sampler_helpers
+import comfy.samplers
+import comfy.utils
 import node_helpers
 
 def perp_neg(x, noise_pred_pos, noise_pred_neg, noise_pred_nocond, neg_scale, cond_scale):
@@ -30,7 +30,7 @@ class PerpNeg:
 
     def patch(self, model, empty_conditioning, neg_scale):
         m = model.clone()
-        nocond = ComfyUI.sampler_helpers.convert_cond(empty_conditioning)
+        nocond = comfy.sampler_helpers.convert_cond(empty_conditioning)
 
         def cfg_function(args):
             model = args["model"]
@@ -40,9 +40,9 @@ class PerpNeg:
             x = args["input"]
             sigma = args["sigma"]
             model_options = args["model_options"]
-            nocond_processed = ComfyUI.samplers.encode_model_conds(model.extra_conds, nocond, x, x.device, "negative")
+            nocond_processed = comfy.samplers.encode_model_conds(model.extra_conds, nocond, x, x.device, "negative")
 
-            (noise_pred_nocond,) = ComfyUI.samplers.calc_cond_batch(model, [nocond_processed], x, sigma, model_options)
+            (noise_pred_nocond,) = comfy.samplers.calc_cond_batch(model, [nocond_processed], x, sigma, model_options)
 
             cfg_result = x - perp_neg(x, noise_pred_pos, noise_pred_neg, noise_pred_nocond, neg_scale, cond_scale)
             return cfg_result
@@ -52,7 +52,7 @@ class PerpNeg:
         return (m, )
 
 
-class Guider_PerpNeg(ComfyUI.samplers.CFGGuider):
+class Guider_PerpNeg(comfy.samplers.CFGGuider):
     def set_conds(self, positive, negative, empty_negative_prompt):
         empty_negative_prompt = node_helpers.conditioning_set_values(empty_negative_prompt, {"prompt_type": "negative"})
         self.inner_set_conds({"positive": positive, "empty_negative_prompt": empty_negative_prompt, "negative": negative})
@@ -70,7 +70,7 @@ class Guider_PerpNeg(ComfyUI.samplers.CFGGuider):
         empty_cond = self.conds.get("empty_negative_prompt", None)
 
         (noise_pred_pos, noise_pred_neg, noise_pred_empty) = \
-            ComfyUI.samplers.calc_cond_batch(self.inner_model, [positive_cond, negative_cond, empty_cond], x, timestep, model_options)
+            comfy.samplers.calc_cond_batch(self.inner_model, [positive_cond, negative_cond, empty_cond], x, timestep, model_options)
         cfg_result = perp_neg(x, noise_pred_pos, noise_pred_neg, noise_pred_empty, self.neg_scale, self.cfg)
 
         # normally this would be done in cfg_function, but we skipped 

@@ -17,14 +17,14 @@
 """
 
 import torch
-import ComfyUI.model_management
-from ComfyUI.cli_args import args
-import ComfyUI.float
+import comfy.model_management
+from comfy.cli_args import args
+import comfy.float
 
-cast_to = ComfyUI.model_management.cast_to #TODO: remove once no more references
+cast_to = comfy.model_management.cast_to #TODO: remove once no more references
 
 def cast_to_input(weight, input, non_blocking=False, copy=True):
-    return ComfyUI.model_management.cast_to(weight, input.dtype, input.device, non_blocking=non_blocking, copy=copy)
+    return comfy.model_management.cast_to(weight, input.dtype, input.device, non_blocking=non_blocking, copy=copy)
 
 def cast_bias_weight(s, input=None, dtype=None, device=None, bias_dtype=None):
     if input is not None:
@@ -36,15 +36,15 @@ def cast_bias_weight(s, input=None, dtype=None, device=None, bias_dtype=None):
             device = input.device
 
     bias = None
-    non_blocking = ComfyUI.model_management.device_supports_non_blocking(device)
+    non_blocking = comfy.model_management.device_supports_non_blocking(device)
     if s.bias is not None:
         has_function = s.bias_function is not None
-        bias = ComfyUI.model_management.cast_to(s.bias, bias_dtype, device, non_blocking=non_blocking, copy=has_function)
+        bias = comfy.model_management.cast_to(s.bias, bias_dtype, device, non_blocking=non_blocking, copy=has_function)
         if has_function:
             bias = s.bias_function(bias)
 
     has_function = s.weight_function is not None
-    weight = ComfyUI.model_management.cast_to(s.weight, dtype, device, non_blocking=non_blocking, copy=has_function)
+    weight = comfy.model_management.cast_to(s.weight, dtype, device, non_blocking=non_blocking, copy=has_function)
     if has_function:
         weight = s.weight_function(weight)
     return weight, bias
@@ -344,7 +344,7 @@ def scaled_fp8_ops(fp8_matrix_mult=False, scale_input=False, override_dtype=None
                     return weight * self.scale_weight.to(device=weight.device, dtype=weight.dtype)
 
             def set_weight(self, weight, inplace_update=False, seed=None, **kwargs):
-                weight = ComfyUI.float.stochastic_rounding(weight / self.scale_weight.to(device=weight.device, dtype=weight.dtype), self.weight.dtype, seed=seed)
+                weight = comfy.float.stochastic_rounding(weight / self.scale_weight.to(device=weight.device, dtype=weight.dtype), self.weight.dtype, seed=seed)
                 if inplace_update:
                     self.weight.data.copy_(weight)
                 else:
@@ -353,7 +353,7 @@ def scaled_fp8_ops(fp8_matrix_mult=False, scale_input=False, override_dtype=None
     return scaled_fp8_op
 
 def pick_operations(weight_dtype, compute_dtype, load_device=None, disable_fast_fp8=False, fp8_optimizations=False, scaled_fp8=None):
-    fp8_compute = ComfyUI.model_management.supports_fp8_compute(load_device)
+    fp8_compute = comfy.model_management.supports_fp8_compute(load_device)
     if scaled_fp8 is not None:
         return scaled_fp8_ops(fp8_matrix_mult=fp8_compute, scale_input=True, override_dtype=scaled_fp8)
 

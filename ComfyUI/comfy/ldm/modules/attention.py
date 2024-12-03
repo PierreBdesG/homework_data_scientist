@@ -9,15 +9,15 @@ import logging
 from .diffusionmodules.util import AlphaBlender, timestep_embedding
 from .sub_quadratic_attention import efficient_dot_product_attention
 
-from ComfyUI import model_management
+from comfy import model_management
 
 if model_management.xformers_enabled():
     import xformers
     import xformers.ops
 
-from ComfyUI.cli_args import args
-import ComfyUI.ops
-ops = ComfyUI.ops.disable_weight_init
+from comfy.cli_args import args
+import comfy.ops
+ops = comfy.ops.disable_weight_init
 
 FORCE_UPCAST_ATTENTION_DTYPE = model_management.force_upcast_attention_dtype()
 

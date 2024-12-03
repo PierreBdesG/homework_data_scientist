@@ -15,7 +15,7 @@ import torch.nn as nn
 import numpy as np
 from einops import repeat, rearrange
 
-from ComfyUI.ldm.util import instantiate_from_config
+from comfy.ldm.util import instantiate_from_config
 
 class AlphaBlender(nn.Module):
     strategies = ["learned", "fixed", "learned_with_images"]

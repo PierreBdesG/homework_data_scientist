@@ -1,6 +1,6 @@
 import nodes
 import folder_paths
-from ComfyUI.cli_args import args
+from comfy.cli_args import args
 
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo

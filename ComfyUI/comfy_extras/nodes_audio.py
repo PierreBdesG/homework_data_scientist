@@ -1,6 +1,6 @@
 import torchaudio
 import torch
-import ComfyUI.model_management
+import comfy.model_management
 import folder_paths
 import os
 import io
@@ -8,11 +8,11 @@ import json
 import struct
 import random
 import hashlib
-from ComfyUI.cli_args import args
+from comfy.cli_args import args
 
 class EmptyLatentAudio:
     def __init__(self):
-        self.device = ComfyUI.model_management.intermediate_device()
+        self.device = comfy.model_management.intermediate_device()
 
     @classmethod
     def INPUT_TYPES(s):

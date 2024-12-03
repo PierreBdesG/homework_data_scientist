@@ -1,7 +1,7 @@
-from ComfyUI import sd1_clip
+from comfy import sd1_clip
 import os
 from transformers import T5TokenizerFast
-import ComfyUI.text_encoders.genmo
+import comfy.text_encoders.genmo
 
 class T5XXLTokenizer(sd1_clip.SDTokenizer):
     def __init__(self, embedding_directory=None, tokenizer_data={}):
@@ -15,4 +15,4 @@ class LTXVT5Tokenizer(sd1_clip.SD1Tokenizer):
 
 
 def ltxv_te(*args, **kwargs):
-    return ComfyUI.text_encoders.genmo.mochi_te(*args, **kwargs)
+    return comfy.text_encoders.genmo.mochi_te(*args, **kwargs)

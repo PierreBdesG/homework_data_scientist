@@ -1,12 +1,12 @@
 import os
 
 from transformers import CLIPTokenizer
-import ComfyUI.ops
+import comfy.ops
 import torch
 import traceback
 import zipfile
 from . import model_management
-import ComfyUI.clip_model
+import comfy.clip_model
 import json
 import logging
 import numbers
@@ -81,7 +81,7 @@ class SDClipModel(torch.nn.Module, ClipTokenWeightEncoder):
         "hidden"
     ]
     def __init__(self, device="cpu", max_length=77,
-                 freeze=True, layer="last", layer_idx=None, textmodel_json_config=None, dtype=None, model_class=ComfyUI.clip_model.CLIPTextModel,
+                 freeze=True, layer="last", layer_idx=None, textmodel_json_config=None, dtype=None, model_class=comfy.clip_model.CLIPTextModel,
                  special_tokens={"start": 49406, "end": 49407, "pad": 49407}, layer_norm_hidden_state=True, enable_attention_masks=False, zero_out_masked=False,
                  return_projected_pooled=True, return_attention_masks=False, model_options={}):  # clip-vit-base-patch32
         super().__init__()
@@ -99,9 +99,9 @@ class SDClipModel(torch.nn.Module, ClipTokenWeightEncoder):
         if operations is None:
             scaled_fp8 = model_options.get("scaled_fp8", None)
             if scaled_fp8 is not None:
-                operations = ComfyUI.ops.scaled_fp8_ops(fp8_matrix_mult=False, override_dtype=scaled_fp8)
+                operations = comfy.ops.scaled_fp8_ops(fp8_matrix_mult=False, override_dtype=scaled_fp8)
             else:
-                operations = ComfyUI.ops.manual_cast
+                operations = comfy.ops.manual_cast
 
         self.operations = operations
         self.transformer = model_class(config, dtype, device, self.operations)

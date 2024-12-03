@@ -17,9 +17,9 @@
 """
 
 from __future__ import annotations
-import ComfyUI.utils
-import ComfyUI.model_management
-import ComfyUI.model_base
+import comfy.utils
+import comfy.model_management
+import comfy.model_base
 import logging
 import torch
 
@@ -33,7 +33,7 @@ LORA_CLIP_MAP = {
 }
 
 
-def load_lora(lora, to_load):
+def load_lora(lora, to_load, log_missing=True):
     patch_dict = {}
     loaded_keys = set()
     for x in to_load:
@@ -213,9 +213,10 @@ def load_lora(lora, to_load):
             patch_dict[to_load[x]] = ("set", (set_weight,))
             loaded_keys.add(set_weight_name)
 
-    for x in lora.keys():
-        if x not in loaded_keys:
-            logging.warning("lora key not loaded: {}".format(x))
+    if log_missing:
+        for x in lora.keys():
+            if x not in loaded_keys:
+                logging.warning("lora key not loaded: {}".format(x))
 
     return patch_dict
 
@@ -311,7 +312,7 @@ def model_lora_keys_unet(model, key_map={}):
             else:
                 key_map["{}".format(k)] = k #generic lora format for not .weight without any weird key names
 
-    diffusers_keys = ComfyUI.utils.unet_to_diffusers(model.model_config.unet_config)
+    diffusers_keys = comfy.utils.unet_to_diffusers(model.model_config.unet_config)
     for k in diffusers_keys:
         if k.endswith(".weight"):
             unet_key = "diffusion_model.{}".format(diffusers_keys[k])
@@ -326,8 +327,8 @@ def model_lora_keys_unet(model, key_map={}):
                     diffusers_lora_key = diffusers_lora_key[:-2]
                 key_map[diffusers_lora_key] = unet_key
 
-    if isinstance(model, ComfyUI.model_base.SD3): #Diffusers lora SD3
-        diffusers_keys = ComfyUI.utils.mmdit_to_diffusers(model.model_config.unet_config, output_prefix="diffusion_model.")
+    if isinstance(model, comfy.model_base.SD3): #Diffusers lora SD3
+        diffusers_keys = comfy.utils.mmdit_to_diffusers(model.model_config.unet_config, output_prefix="diffusion_model.")
         for k in diffusers_keys:
             if k.endswith(".weight"):
                 to = diffusers_keys[k]
@@ -344,22 +345,22 @@ def model_lora_keys_unet(model, key_map={}):
                 key_map[key_lora] = to
 
 
-    if isinstance(model, ComfyUI.model_base.AuraFlow): #Diffusers lora AuraFlow
-        diffusers_keys = ComfyUI.utils.auraflow_to_diffusers(model.model_config.unet_config, output_prefix="diffusion_model.")
+    if isinstance(model, comfy.model_base.AuraFlow): #Diffusers lora AuraFlow
+        diffusers_keys = comfy.utils.auraflow_to_diffusers(model.model_config.unet_config, output_prefix="diffusion_model.")
         for k in diffusers_keys:
             if k.endswith(".weight"):
                 to = diffusers_keys[k]
                 key_lora = "transformer.{}".format(k[:-len(".weight")]) #simpletrainer and probably regular diffusers lora format
                 key_map[key_lora] = to
 
-    if isinstance(model, ComfyUI.model_base.HunyuanDiT):
+    if isinstance(model, comfy.model_base.HunyuanDiT):
         for k in sdk:
             if k.startswith("diffusion_model.") and k.endswith(".weight"):
                 key_lora = k[len("diffusion_model."):-len(".weight")]
                 key_map["base_model.model.{}".format(key_lora)] = k #official hunyuan lora format
 
-    if isinstance(model, ComfyUI.model_base.Flux): #Diffusers lora Flux
-        diffusers_keys = ComfyUI.utils.flux_to_diffusers(model.model_config.unet_config, output_prefix="diffusion_model.")
+    if isinstance(model, comfy.model_base.Flux): #Diffusers lora Flux
+        diffusers_keys = comfy.utils.flux_to_diffusers(model.model_config.unet_config, output_prefix="diffusion_model.")
         for k in diffusers_keys:
             if k.endswith(".weight"):
                 to = diffusers_keys[k]
@@ -367,7 +368,7 @@ def model_lora_keys_unet(model, key_map={}):
                 key_map["lycoris_{}".format(k[:-len(".weight")].replace(".", "_"))] = to #simpletrainer lycoris
                 key_map["lora_transformer_{}".format(k[:-len(".weight")].replace(".", "_"))] = to #onetrainer
 
-    if isinstance(model, ComfyUI.model_base.GenmoMochi):
+    if isinstance(model, comfy.model_base.GenmoMochi):
         for k in sdk:
             if k.startswith("diffusion_model.") and k.endswith(".weight"): #Official Mochi lora format
                 key_lora = k[len("diffusion_model."):-len(".weight")]
@@ -377,7 +378,7 @@ def model_lora_keys_unet(model, key_map={}):
 
 
 def weight_decompose(dora_scale, weight, lora_diff, alpha, strength, intermediate_dtype, function):
-    dora_scale = ComfyUI.model_management.cast_to_device(dora_scale, weight.device, intermediate_dtype)
+    dora_scale = comfy.model_management.cast_to_device(dora_scale, weight.device, intermediate_dtype)
     lora_diff *= alpha
     weight_calc = weight + function(lora_diff).type(weight.dtype)
     weight_norm = (
@@ -429,7 +430,7 @@ def pad_tensor_to_shape(tensor: torch.Tensor, new_shape: list[int]) -> torch.Ten
 
     return padded_tensor
 
-def calculate_weight(patches, weight, key, intermediate_dtype=torch.float32):
+def calculate_weight(patches, weight, key, intermediate_dtype=torch.float32, original_weights=None):
     for p in patches:
         strength = p[0]
         v = p[1]
@@ -448,7 +449,7 @@ def calculate_weight(patches, weight, key, intermediate_dtype=torch.float32):
             weight *= strength_model
 
         if isinstance(v, list):
-            v = (calculate_weight(v[1:], v[0][1](ComfyUI.model_management.cast_to_device(v[0][0], weight.device, intermediate_dtype, copy=True), inplace=True), key, intermediate_dtype=intermediate_dtype),)
+            v = (calculate_weight(v[1:], v[0][1](comfy.model_management.cast_to_device(v[0][0], weight.device, intermediate_dtype, copy=True), inplace=True), key, intermediate_dtype=intermediate_dtype), )
 
         if len(v) == 1:
             patch_type = "diff"
@@ -468,12 +469,17 @@ def calculate_weight(patches, weight, key, intermediate_dtype=torch.float32):
                 if diff.shape != weight.shape:
                     logging.warning("WARNING SHAPE MISMATCH {} WEIGHT NOT MERGED {} != {}".format(key, diff.shape, weight.shape))
                 else:
-                    weight += function(strength * ComfyUI.model_management.cast_to_device(diff, weight.device, weight.dtype))
+                    weight += function(strength * comfy.model_management.cast_to_device(diff, weight.device, weight.dtype))
         elif patch_type == "set":
             weight.copy_(v[0])
+        elif patch_type == "model_as_lora":
+            target_weight: torch.Tensor = v[0]
+            diff_weight = comfy.model_management.cast_to_device(target_weight, weight.device, intermediate_dtype) - \
+                          comfy.model_management.cast_to_device(original_weights[key][0][0], weight.device, intermediate_dtype)
+            weight += function(strength * comfy.model_management.cast_to_device(diff_weight, weight.device, weight.dtype))
         elif patch_type == "lora": #lora/locon
-            mat1 = ComfyUI.model_management.cast_to_device(v[0], weight.device, intermediate_dtype)
-            mat2 = ComfyUI.model_management.cast_to_device(v[1], weight.device, intermediate_dtype)
+            mat1 = comfy.model_management.cast_to_device(v[0], weight.device, intermediate_dtype)
+            mat2 = comfy.model_management.cast_to_device(v[1], weight.device, intermediate_dtype)
             dora_scale = v[4]
             reshape = v[5]
 
@@ -487,7 +493,7 @@ def calculate_weight(patches, weight, key, intermediate_dtype=torch.float32):
 
             if v[3] is not None:
                 #locon mid weights, hopefully the math is fine because I didn't properly test it
-                mat3 = ComfyUI.model_management.cast_to_device(v[3], weight.device, intermediate_dtype)
+                mat3 = comfy.model_management.cast_to_device(v[3], weight.device, intermediate_dtype)
                 final_shape = [mat2.shape[1], mat2.shape[0], mat3.shape[2], mat3.shape[3]]
                 mat2 = torch.mm(mat2.transpose(0, 1).flatten(start_dim=1), mat3.transpose(0, 1).flatten(start_dim=1)).reshape(final_shape).transpose(0, 1)
             try:
@@ -511,23 +517,23 @@ def calculate_weight(patches, weight, key, intermediate_dtype=torch.float32):
 
             if w1 is None:
                 dim = w1_b.shape[0]
-                w1 = torch.mm(ComfyUI.model_management.cast_to_device(w1_a, weight.device, intermediate_dtype),
-                              ComfyUI.model_management.cast_to_device(w1_b, weight.device, intermediate_dtype))
+                w1 = torch.mm(comfy.model_management.cast_to_device(w1_a, weight.device, intermediate_dtype),
+                                comfy.model_management.cast_to_device(w1_b, weight.device, intermediate_dtype))
             else:
-                w1 = ComfyUI.model_management.cast_to_device(w1, weight.device, intermediate_dtype)
+                w1 = comfy.model_management.cast_to_device(w1, weight.device, intermediate_dtype)
 
             if w2 is None:
                 dim = w2_b.shape[0]
                 if t2 is None:
-                    w2 = torch.mm(ComfyUI.model_management.cast_to_device(w2_a, weight.device, intermediate_dtype),
-                                  ComfyUI.model_management.cast_to_device(w2_b, weight.device, intermediate_dtype))
+                    w2 = torch.mm(comfy.model_management.cast_to_device(w2_a, weight.device, intermediate_dtype),
+                                    comfy.model_management.cast_to_device(w2_b, weight.device, intermediate_dtype))
                 else:
                     w2 = torch.einsum('i j k l, j r, i p -> p r k l',
-                                      ComfyUI.model_management.cast_to_device(t2, weight.device, intermediate_dtype),
-                                      ComfyUI.model_management.cast_to_device(w2_b, weight.device, intermediate_dtype),
-                                      ComfyUI.model_management.cast_to_device(w2_a, weight.device, intermediate_dtype))
+                                        comfy.model_management.cast_to_device(t2, weight.device, intermediate_dtype),
+                                        comfy.model_management.cast_to_device(w2_b, weight.device, intermediate_dtype),
+                                        comfy.model_management.cast_to_device(w2_a, weight.device, intermediate_dtype))
             else:
-                w2 = ComfyUI.model_management.cast_to_device(w2, weight.device, intermediate_dtype)
+                w2 = comfy.model_management.cast_to_device(w2, weight.device, intermediate_dtype)
 
             if len(w2.shape) == 4:
                 w1 = w1.unsqueeze(2).unsqueeze(2)
@@ -559,19 +565,19 @@ def calculate_weight(patches, weight, key, intermediate_dtype=torch.float32):
                 t1 = v[5]
                 t2 = v[6]
                 m1 = torch.einsum('i j k l, j r, i p -> p r k l',
-                                  ComfyUI.model_management.cast_to_device(t1, weight.device, intermediate_dtype),
-                                  ComfyUI.model_management.cast_to_device(w1b, weight.device, intermediate_dtype),
-                                  ComfyUI.model_management.cast_to_device(w1a, weight.device, intermediate_dtype))
+                                    comfy.model_management.cast_to_device(t1, weight.device, intermediate_dtype),
+                                    comfy.model_management.cast_to_device(w1b, weight.device, intermediate_dtype),
+                                    comfy.model_management.cast_to_device(w1a, weight.device, intermediate_dtype))
 
                 m2 = torch.einsum('i j k l, j r, i p -> p r k l',
-                                  ComfyUI.model_management.cast_to_device(t2, weight.device, intermediate_dtype),
-                                  ComfyUI.model_management.cast_to_device(w2b, weight.device, intermediate_dtype),
-                                  ComfyUI.model_management.cast_to_device(w2a, weight.device, intermediate_dtype))
+                                    comfy.model_management.cast_to_device(t2, weight.device, intermediate_dtype),
+                                    comfy.model_management.cast_to_device(w2b, weight.device, intermediate_dtype),
+                                    comfy.model_management.cast_to_device(w2a, weight.device, intermediate_dtype))
             else:
-                m1 = torch.mm(ComfyUI.model_management.cast_to_device(w1a, weight.device, intermediate_dtype),
-                              ComfyUI.model_management.cast_to_device(w1b, weight.device, intermediate_dtype))
-                m2 = torch.mm(ComfyUI.model_management.cast_to_device(w2a, weight.device, intermediate_dtype),
-                              ComfyUI.model_management.cast_to_device(w2b, weight.device, intermediate_dtype))
+                m1 = torch.mm(comfy.model_management.cast_to_device(w1a, weight.device, intermediate_dtype),
+                                comfy.model_management.cast_to_device(w1b, weight.device, intermediate_dtype))
+                m2 = torch.mm(comfy.model_management.cast_to_device(w2a, weight.device, intermediate_dtype),
+                                comfy.model_management.cast_to_device(w2b, weight.device, intermediate_dtype))
 
             try:
                 lora_diff = (m1 * m2).reshape(weight.shape)
@@ -596,10 +602,10 @@ def calculate_weight(patches, weight, key, intermediate_dtype=torch.float32):
                     old_glora = False
                     rank = v[1].shape[0]
 
-            a1 = ComfyUI.model_management.cast_to_device(v[0].flatten(start_dim=1), weight.device, intermediate_dtype)
-            a2 = ComfyUI.model_management.cast_to_device(v[1].flatten(start_dim=1), weight.device, intermediate_dtype)
-            b1 = ComfyUI.model_management.cast_to_device(v[2].flatten(start_dim=1), weight.device, intermediate_dtype)
-            b2 = ComfyUI.model_management.cast_to_device(v[3].flatten(start_dim=1), weight.device, intermediate_dtype)
+            a1 = comfy.model_management.cast_to_device(v[0].flatten(start_dim=1), weight.device, intermediate_dtype)
+            a2 = comfy.model_management.cast_to_device(v[1].flatten(start_dim=1), weight.device, intermediate_dtype)
+            b1 = comfy.model_management.cast_to_device(v[2].flatten(start_dim=1), weight.device, intermediate_dtype)
+            b2 = comfy.model_management.cast_to_device(v[3].flatten(start_dim=1), weight.device, intermediate_dtype)
 
             if v[4] is not None:
                 alpha = v[4] / rank

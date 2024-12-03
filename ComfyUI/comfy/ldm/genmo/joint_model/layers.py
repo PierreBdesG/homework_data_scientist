@@ -10,7 +10,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange
-import ComfyUI.ldm.common_dit
+import comfy.ldm.common_dit
 
 
 # From PyTorch internals
@@ -141,7 +141,7 @@ class PatchEmbed(nn.Module):
             x = F.pad(x, (0, pad_w, 0, pad_h))
 
         x = rearrange(x, "B C T H W -> (B T) C H W", B=B, T=T)
-        x = ComfyUI.ldm.common_dit.pad_to_patch_size(x, self.patch_size, padding_mode='circular')
+        x = comfy.ldm.common_dit.pad_to_patch_size(x, self.patch_size, padding_mode='circular')
         x = self.proj(x)
 
         # Flatten temporal and spatial dimensions.
@@ -161,4 +161,4 @@ class RMSNorm(torch.nn.Module):
         self.register_parameter("bias", None)
 
     def forward(self, x):
-        return ComfyUI.ldm.common_dit.rms_norm(x, self.weight, self.eps)
+        return comfy.ldm.common_dit.rms_norm(x, self.weight, self.eps)

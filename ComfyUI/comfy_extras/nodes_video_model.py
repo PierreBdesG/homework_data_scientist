@@ -1,7 +1,7 @@
 import nodes
 import torch
-import ComfyUI.utils
-import ComfyUI.sd
+import comfy.utils
+import comfy.sd
 import folder_paths
 import comfy_extras.nodes_model_merging
 
@@ -18,7 +18,7 @@ class ImageOnlyCheckpointLoader:
 
     def load_checkpoint(self, ckpt_name, output_vae=True, output_clip=True):
         ckpt_path = folder_paths.get_full_path_or_raise("checkpoints", ckpt_name)
-        out = ComfyUI.sd.load_checkpoint_guess_config(ckpt_path, output_vae=True, output_clip=False, output_clipvision=True, embedding_directory=folder_paths.get_folder_paths("embeddings"))
+        out = comfy.sd.load_checkpoint_guess_config(ckpt_path, output_vae=True, output_clip=False, output_clipvision=True, embedding_directory=folder_paths.get_folder_paths("embeddings"))
         return (out[0], out[3], out[2])
 
 
@@ -45,7 +45,7 @@ class SVD_img2vid_Conditioning:
     def encode(self, clip_vision, init_image, vae, width, height, video_frames, motion_bucket_id, fps, augmentation_level):
         output = clip_vision.encode_image(init_image)
         pooled = output.image_embeds.unsqueeze(0)
-        pixels = ComfyUI.utils.common_upscale(init_image.movedim(-1, 1), width, height, "bilinear", "center").movedim(1, -1)
+        pixels = comfy.utils.common_upscale(init_image.movedim(-1,1), width, height, "bilinear", "center").movedim(1,-1)
         encode_pixels = pixels[:,:,:,:3]
         if augmentation_level > 0:
             encode_pixels += torch.randn_like(pixels) * augmentation_level

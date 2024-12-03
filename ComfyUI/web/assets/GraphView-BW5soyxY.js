@@ -243,7 +243,7 @@ const _sfc_main$p = /* @__PURE__ */ defineComponent({
         icon: icon.value,
         onClick: toggleTheme,
         tooltip: _ctx.$t("sideToolbar.themeToggle"),
-        class: "ComfyUI-vue-theme-toggle"
+        class: "comfy-vue-theme-toggle"
       }, null, 8, ["icon", "tooltip"]);
     };
   }
@@ -261,7 +261,7 @@ const _sfc_main$o = /* @__PURE__ */ defineComponent({
     return (_ctx, _cache) => {
       return openBlock(), createBlock(SidebarIcon, {
         icon: "pi pi-cog",
-        class: "ComfyUI-settings-btn",
+        class: "comfy-settings-btn",
         onClick: showSetting,
         tooltip: _ctx.$t("settings")
       }, null, 8, ["tooltip"]);
@@ -3034,10 +3034,10 @@ const _sfc_main$i = /* @__PURE__ */ defineComponent({
   }
 });
 const NodeSearchItem = /* @__PURE__ */ _export_sfc(_sfc_main$i, [["__scopeId", "data-v-37f672ab"]]);
-const _hoisted_1$h = { class: "ComfyUI-vue-node-search-container flex justify-center items-center w-full min-w-96 pointer-events-auto" };
+const _hoisted_1$h = { class: "comfy-vue-node-search-container flex justify-center items-center w-full min-w-96 pointer-events-auto" };
 const _hoisted_2$e = {
   key: 0,
-  class: "ComfyUI-vue-node-preview-container absolute left-[-350px] top-[50px]"
+  class: "comfy-vue-node-preview-container absolute left-[-350px] top-[50px]"
 };
 const _hoisted_3$c = /* @__PURE__ */ createBaseVNode("h3", null, "Add node filter condition", -1);
 const _hoisted_4$2 = { class: "_dialog-body" };
@@ -3133,7 +3133,7 @@ const _sfc_main$h = /* @__PURE__ */ defineComponent({
         }, 8, ["visible"]),
         createVNode(_sfc_main$j, {
           "model-value": props.filters,
-          class: "ComfyUI-vue-node-search-box z-10 flex-grow",
+          class: "comfy-vue-node-search-box z-10 flex-grow",
           scrollHeight: "40vh",
           placeholder: placeholder.value,
           "input-id": inputId,
@@ -3783,7 +3783,7 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
     });
     watchEffect(() => {
       const spellcheckEnabled = settingStore.get("Comfy.TextareaWidget.Spellcheck");
-      const textareas = document.querySelectorAll("textarea.ComfyUI-multiline-input");
+      const textareas = document.querySelectorAll("textarea.comfy-multiline-input");
       textareas.forEach((textarea) => {
         textarea.spellcheck = spellcheckEnabled;
         textarea.focus();
@@ -3997,7 +3997,7 @@ const _sfc_main$b = /* @__PURE__ */ defineComponent({
     return (_ctx, _cache) => {
       const _directive_tooltip = resolveDirective("tooltip");
       return withDirectives((openBlock(), createBlock(unref(script$f), {
-        class: "ComfyUI-menu-hamburger",
+        class: "comfy-menu-hamburger",
         style: normalizeStyle(positionCSS.value),
         icon: "pi pi-bars",
         severity: "secondary",
@@ -8524,14 +8524,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     watchEffect(() => {
       const fontSize = settingStore.get("Comfy.TextareaWidget.FontSize");
       document.documentElement.style.setProperty(
-        "--ComfyUI-textarea-font-size",
+        "--comfy-textarea-font-size",
         `${fontSize}px`
       );
     });
     watchEffect(() => {
       const padding = settingStore.get("Comfy.TreeExplorer.ItemPadding");
       document.documentElement.style.setProperty(
-        "--ComfyUI-tree-explorer-item-padding",
+        "--comfy-tree-explorer-item-padding",
         `${padding}px`
       );
     });

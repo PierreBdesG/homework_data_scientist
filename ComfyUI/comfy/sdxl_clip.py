@@ -1,4 +1,4 @@
-from ComfyUI import sd1_clip
+from comfy import sd1_clip
 import torch
 import os
 

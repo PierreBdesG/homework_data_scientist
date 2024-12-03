@@ -1,6 +1,6 @@
 import folder_paths
-import ComfyUI.sd
-import ComfyUI.model_management
+import comfy.sd
+import comfy.model_management
 import nodes
 import torch
 import comfy_extras.nodes_slg
@@ -22,13 +22,13 @@ class TripleCLIPLoader:
         clip_path1 = folder_paths.get_full_path_or_raise("text_encoders", clip_name1)
         clip_path2 = folder_paths.get_full_path_or_raise("text_encoders", clip_name2)
         clip_path3 = folder_paths.get_full_path_or_raise("text_encoders", clip_name3)
-        clip = ComfyUI.sd.load_clip(ckpt_paths=[clip_path1, clip_path2, clip_path3], embedding_directory=folder_paths.get_folder_paths("embeddings"))
+        clip = comfy.sd.load_clip(ckpt_paths=[clip_path1, clip_path2, clip_path3], embedding_directory=folder_paths.get_folder_paths("embeddings"))
         return (clip,)
 
 
 class EmptySD3LatentImage:
     def __init__(self):
-        self.device = ComfyUI.model_management.intermediate_device()
+        self.device = comfy.model_management.intermediate_device()
 
     @classmethod
     def INPUT_TYPES(s):
@@ -82,8 +82,7 @@ class CLIPTextEncodeSD3:
                 tokens["l"] += empty["l"]
             while len(tokens["l"]) > len(tokens["g"]):
                 tokens["g"] += empty["g"]
-        cond, pooled = clip.encode_from_tokens(tokens, return_pooled=True)
-        return ([[cond, {"pooled_output": pooled}]], )
+        return (clip.encode_from_tokens_scheduled(tokens), )
 
 
 class ControlNetApplySD3(nodes.ControlNetApplyAdvanced):

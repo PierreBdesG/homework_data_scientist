@@ -32,7 +32,7 @@ class ClipspaceDialog extends ComfyDialog {
   static invalidate() {
     if (ClipspaceDialog.instance) {
       const self2 = ClipspaceDialog.instance;
-      const children = $el("div.ComfyUI-modal-content", [
+      const children = $el("div.comfy-modal-content", [
         self2.createImgSettings(),
         ...self2.createButtons()
       ]);
@@ -42,7 +42,7 @@ class ClipspaceDialog extends ComfyDialog {
         }
         self2.element.appendChild(children);
       } else {
-        self2.element = $el("div.ComfyUI-modal", { parent: document.body }, [
+        self2.element = $el("div.comfy-modal", { parent: document.body }, [
           children
         ]);
       }
@@ -168,7 +168,7 @@ const ext$1 = {
       const ctx = new ctxMenu(values, options);
       if (options?.className === "dark" && values?.length > 4) {
         const filter = document.createElement("input");
-        filter.classList.add("ComfyUI-context-menu-filter");
+        filter.classList.add("comfy-context-menu-filter");
         filter.placeholder = "Filter list";
         ctx.root.prepend(filter);
         const items = Array.from(
@@ -474,7 +474,7 @@ class ManageGroupDialog extends ComfyDialog {
   constructor(app2) {
     super();
     this.app = app2;
-    this.element = $el("dialog.ComfyUI-group-manage", {
+    this.element = $el("dialog.comfy-group-manage", {
       parent: document.body
     });
   }
@@ -696,11 +696,11 @@ class ManageGroupDialog extends ComfyDialog {
       (a, b) => a.localeCompare(b)
     );
     this.innerNodesList = $el(
-      "ul.ComfyUI-group-manage-list-items"
+      "ul.comfy-group-manage-list-items"
     );
-    this.widgetsPage = $el("section.ComfyUI-group-manage-node-page");
-    this.inputsPage = $el("section.ComfyUI-group-manage-node-page");
-    this.outputsPage = $el("section.ComfyUI-group-manage-node-page");
+    this.widgetsPage = $el("section.comfy-group-manage-node-page");
+    this.inputsPage = $el("section.comfy-group-manage-node-page");
+    this.outputsPage = $el("section.comfy-group-manage-node-page");
     const pages = $el("div", [
       this.widgetsPage,
       this.inputsPage,
@@ -722,7 +722,7 @@ class ManageGroupDialog extends ComfyDialog {
       };
       return p;
     }, {});
-    const outer = $el("div.ComfyUI-group-manage-outer", [
+    const outer = $el("div.comfy-group-manage-outer", [
       $el("header", [
         $el("h2", "Group Nodes"),
         $el(
@@ -742,8 +742,8 @@ class ManageGroupDialog extends ComfyDialog {
         )
       ]),
       $el("main", [
-        $el("section.ComfyUI-group-manage-list", this.innerNodesList),
-        $el("section.ComfyUI-group-manage-node", [
+        $el("section.comfy-group-manage-list", this.innerNodesList),
+        $el("section.comfy-group-manage-node", [
           $el(
             "header",
             Object.values(this.tabs).map((t) => t.tab)
@@ -753,7 +753,7 @@ class ManageGroupDialog extends ComfyDialog {
       ]),
       $el("footer", [
         $el(
-          "button.ComfyUI-btn",
+          "button.comfy-btn",
           {
             onclick: /* @__PURE__ */ __name((e) => {
               const node = app.graph.nodes.find(
@@ -779,7 +779,7 @@ class ManageGroupDialog extends ComfyDialog {
           "Delete Group Node"
         ),
         $el(
-          "button.ComfyUI-btn",
+          "button.comfy-btn",
           {
             onclick: /* @__PURE__ */ __name(async () => {
               let nodesByType;
@@ -845,7 +845,7 @@ class ManageGroupDialog extends ComfyDialog {
           "Save"
         ),
         $el(
-          "button.ComfyUI-btn",
+          "button.comfy-btn",
           { onclick: /* @__PURE__ */ __name(() => this.element.close(), "onclick") },
           "Close"
         )
@@ -2354,7 +2354,7 @@ app.registerExtension({
         return;
       }
       if (event.key === "Escape") {
-        const modals = document.querySelectorAll(".ComfyUI-modal");
+        const modals = document.querySelectorAll(".comfy-modal");
         const modal = Array.from(modals).find(
           (modal2) => window.getComputedStyle(modal2).getPropertyValue("display") !== "none"
         );
@@ -2488,8 +2488,8 @@ class MaskEditorDialogOld extends ComfyDialog {
   is_layout_created = false;
   constructor() {
     super();
-    this.element = $el("div.ComfyUI-modal", { parent: document.body }, [
-      $el("div.ComfyUI-modal-content", [...this.createButtons()])
+    this.element = $el("div.comfy-modal", { parent: document.body }, [
+      $el("div.comfy-modal-content", [...this.createButtons()])
     ]);
   }
   createButtons() {
@@ -2521,7 +2521,7 @@ class MaskEditorDialogOld extends ComfyDialog {
     divElement.style.fontFamily = "sans-serif";
     divElement.style.marginRight = "4px";
     divElement.style.color = "var(--input-text)";
-    divElement.style.backgroundColor = "var(--ComfyUI-input-bg)";
+    divElement.style.backgroundColor = "var(--comfy-input-bg)";
     divElement.style.borderRadius = "8px";
     divElement.style.borderColor = "var(--border-color)";
     divElement.style.borderStyle = "solid";
@@ -2551,7 +2551,7 @@ class MaskEditorDialogOld extends ComfyDialog {
     divElement.style.fontFamily = "sans-serif";
     divElement.style.marginRight = "4px";
     divElement.style.color = "var(--input-text)";
-    divElement.style.backgroundColor = "var(--ComfyUI-input-bg)";
+    divElement.style.backgroundColor = "var(--comfy-input-bg)";
     divElement.style.borderRadius = "8px";
     divElement.style.borderColor = "var(--border-color)";
     divElement.style.borderStyle = "solid";
@@ -2582,7 +2582,7 @@ class MaskEditorDialogOld extends ComfyDialog {
     divElement.style.fontFamily = "sans-serif";
     divElement.style.marginRight = "4px";
     divElement.style.color = "var(--input-text)";
-    divElement.style.backgroundColor = "var(--ComfyUI-input-bg)";
+    divElement.style.backgroundColor = "var(--comfy-input-bg)";
     divElement.style.borderRadius = "8px";
     divElement.style.borderColor = "var(--border-color)";
     divElement.style.borderStyle = "solid";
@@ -7190,7 +7190,7 @@ app.registerExtension({
   }
 });
 const id = "Comfy.NodeTemplates";
-const file = "ComfyUI.templates.json";
+const file = "comfy.templates.json";
 class ManageTemplates extends ComfyDialog {
   static {
     __name(this, "ManageTemplates");
@@ -7205,7 +7205,7 @@ class ManageTemplates extends ComfyDialog {
     this.load().then((v) => {
       this.templates = v;
     });
-    this.element.classList.add("ComfyUI-manage-templates");
+    this.element.classList.add("comfy-manage-templates");
     this.draggedEl = null;
     this.saveVisualCue = null;
     this.emptyImg = new Image();
@@ -7345,7 +7345,7 @@ class ManageTemplates extends ComfyDialog {
                   gridTemplateColumns: "1fr auto",
                   border: "1px dashed transparent",
                   gap: "5px",
-                  backgroundColor: "var(--ComfyUI-menu-bg)"
+                  backgroundColor: "var(--comfy-menu-bg)"
                 },
                 ondragstart: /* @__PURE__ */ __name((e) => {
                   this.draggedEl = e.currentTarget;
@@ -7419,14 +7419,14 @@ class ManageTemplates extends ComfyDialog {
                         el.style.transitionDuration = "0s";
                         this.saveVisualCue = setTimeout(function() {
                           el.style.transitionDuration = ".7s";
-                          el.style.backgroundColor = "var(--ComfyUI-input-bg)";
+                          el.style.backgroundColor = "var(--comfy-input-bg)";
                         }, 15);
                       }, "onchange"),
                       onkeypress: /* @__PURE__ */ __name((e) => {
                         var el = e.target;
                         clearTimeout(this.saveVisualCue);
                         el.style.transitionDuration = "0s";
-                        el.style.backgroundColor = "var(--ComfyUI-input-bg)";
+                        el.style.backgroundColor = "var(--comfy-input-bg)";
                       }, "onkeypress"),
                       $: /* @__PURE__ */ __name((el) => nameInput = el, "$")
                     })
@@ -8257,7 +8257,7 @@ app.registerExtension({
       AUDIO_UI(node, inputName) {
         const audio = document.createElement("audio");
         audio.controls = true;
-        audio.classList.add("ComfyUI-audio");
+        audio.classList.add("comfy-audio");
         audio.setAttribute("name", "media");
         const audioUIWidget = node.addDOMWidget(
           inputName,
@@ -51851,7 +51851,7 @@ app.registerExtension({
         node.addProperty("Camera Info", "");
         const container = document.createElement("div");
         container.id = `comfy-load-3d-${load3dNode.length}`;
-        container.classList.add("ComfyUI-load-3d");
+        container.classList.add("comfy-load-3d");
         const load3d = new Load3d(container);
         containerToLoad3D.set(container.id, load3d);
         node.onResize = function() {
@@ -52010,7 +52010,7 @@ app.registerExtension({
         node.addProperty("Camera Info", "");
         const container = document.createElement("div");
         container.id = `comfy-load-3d-animation-${load3dNode.length}`;
-        container.classList.add("ComfyUI-load-3d-animation");
+        container.classList.add("comfy-load-3d-animation");
         const load3d = new Load3dAnimation(container);
         containerToLoad3D.set(container.id, load3d);
         node.onResize = function() {
@@ -52231,7 +52231,7 @@ app.registerExtension({
         let load3dNode = app2.graph._nodes.filter((wi) => wi.type == "Preview3D");
         const container = document.createElement("div");
         container.id = `comfy-preview-3d-${load3dNode.length}`;
-        container.classList.add("ComfyUI-preview-3d");
+        container.classList.add("comfy-preview-3d");
         const load3d = new Load3d(container);
         containerToLoad3D.set(container.id, load3d);
         node.onResize = function() {

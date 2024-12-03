@@ -8,7 +8,7 @@ import shutil
 import logging
 from aiohttp import web
 from urllib import parse
-from ComfyUI.cli_args import args
+from comfy.cli_args import args
 import folder_paths
 from .app_settings import AppSettings
 from typing import TypedDict
@@ -55,8 +55,8 @@ class UserManager():
 
     def get_request_user_id(self, request):
         user = "default"
-        if args.multi_user and "ComfyUI-user" in request.headers:
-            user = request.headers["ComfyUI-user"]
+        if args.multi_user and "comfy-user" in request.headers:
+            user = request.headers["comfy-user"]
 
         if user not in self.users:
             raise KeyError("Unknown user: " + user)

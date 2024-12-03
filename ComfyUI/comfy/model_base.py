@@ -18,27 +18,31 @@
 
 import torch
 import logging
-from ComfyUI.ldm.modules.diffusionmodules.openaimodel import UNetModel, Timestep
-from ComfyUI.ldm.cascade.stage_c import StageC
-from ComfyUI.ldm.cascade.stage_b import StageB
-from ComfyUI.ldm.modules.encoders.noise_aug_modules import CLIPEmbeddingNoiseAugmentation
-from ComfyUI.ldm.modules.diffusionmodules.upscaling import ImageConcatWithNoiseAugmentation
-from ComfyUI.ldm.modules.diffusionmodules.mmdit import OpenAISignatureMMDITWrapper
-import ComfyUI.ldm.genmo.joint_model.asymm_models_joint
-import ComfyUI.ldm.aura.mmdit
-import ComfyUI.ldm.hydit.models
-import ComfyUI.ldm.audio.dit
-import ComfyUI.ldm.audio.embedders
-import ComfyUI.ldm.flux.model
-import ComfyUI.ldm.lightricks.model
+from comfy.ldm.modules.diffusionmodules.openaimodel import UNetModel, Timestep
+from comfy.ldm.cascade.stage_c import StageC
+from comfy.ldm.cascade.stage_b import StageB
+from comfy.ldm.modules.encoders.noise_aug_modules import CLIPEmbeddingNoiseAugmentation
+from comfy.ldm.modules.diffusionmodules.upscaling import ImageConcatWithNoiseAugmentation
+from comfy.ldm.modules.diffusionmodules.mmdit import OpenAISignatureMMDITWrapper
+import comfy.ldm.genmo.joint_model.asymm_models_joint
+import comfy.ldm.aura.mmdit
+import comfy.ldm.hydit.models
+import comfy.ldm.audio.dit
+import comfy.ldm.audio.embedders
+import comfy.ldm.flux.model
+import comfy.ldm.lightricks.model
 
-import ComfyUI.model_management
-import ComfyUI.conds
-import ComfyUI.ops
+import comfy.model_management
+import comfy.patcher_extension
+import comfy.conds
+import comfy.ops
 from enum import Enum
 from . import utils
-import ComfyUI.latent_formats
+import comfy.latent_formats
 import math
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from comfy.model_patcher import ModelPatcher
 
 class ModelType(Enum):
     EPS = 1
@@ -51,7 +55,7 @@ class ModelType(Enum):
     FLUX = 8
 
 
-from ComfyUI.model_sampling import EPS, V_PREDICTION, EDM, ModelSamplingDiscrete, ModelSamplingContinuousEDM, StableCascadeSampling, ModelSamplingContinuousV
+from comfy.model_sampling import EPS, V_PREDICTION, EDM, ModelSamplingDiscrete, ModelSamplingContinuousEDM, StableCascadeSampling, ModelSamplingContinuousV
 
 
 def model_sampling(model_config, model_type):
@@ -65,8 +69,8 @@ def model_sampling(model_config, model_type):
         c = V_PREDICTION
         s = ModelSamplingContinuousEDM
     elif model_type == ModelType.FLOW:
-        c = ComfyUI.model_sampling.CONST
-        s = ComfyUI.model_sampling.ModelSamplingDiscreteFlow
+        c = comfy.model_sampling.CONST
+        s = comfy.model_sampling.ModelSamplingDiscreteFlow
     elif model_type == ModelType.STABLE_CASCADE:
         c = EPS
         s = StableCascadeSampling
@@ -77,8 +81,8 @@ def model_sampling(model_config, model_type):
         c = V_PREDICTION
         s = ModelSamplingContinuousV
     elif model_type == ModelType.FLUX:
-        c = ComfyUI.model_sampling.CONST
-        s = ComfyUI.model_sampling.ModelSamplingFlux
+        c = comfy.model_sampling.CONST
+        s = comfy.model_sampling.ModelSamplingFlux
 
     class ModelSampling(s, c):
         pass
@@ -95,15 +99,16 @@ class BaseModel(torch.nn.Module):
         self.model_config = model_config
         self.manual_cast_dtype = model_config.manual_cast_dtype
         self.device = device
+        self.current_patcher: 'ModelPatcher' = None
 
         if not unet_config.get("disable_unet_model_creation", False):
             if model_config.custom_operations is None:
                 fp8 = model_config.optimizations.get("fp8", model_config.scaled_fp8 is not None)
-                operations = ComfyUI.ops.pick_operations(unet_config.get("dtype", None), self.manual_cast_dtype, fp8_optimizations=fp8, scaled_fp8=model_config.scaled_fp8)
+                operations = comfy.ops.pick_operations(unet_config.get("dtype", None), self.manual_cast_dtype, fp8_optimizations=fp8, scaled_fp8=model_config.scaled_fp8)
             else:
                 operations = model_config.custom_operations
             self.diffusion_model = unet_model(**unet_config, device=device, operations=operations)
-            if ComfyUI.model_management.force_channels_last():
+            if comfy.model_management.force_channels_last():
                 self.diffusion_model.to(memory_format=torch.channels_last)
                 logging.debug("using channels last mode for diffusion model")
             logging.info("model weight dtype {}, manual cast: {}".format(self.get_dtype(), self.manual_cast_dtype))
@@ -120,6 +125,13 @@ class BaseModel(torch.nn.Module):
         self.memory_usage_factor = model_config.memory_usage_factor
 
     def apply_model(self, x, t, c_concat=None, c_crossattn=None, control=None, transformer_options={}, **kwargs):
+        return comfy.patcher_extension.WrapperExecutor.new_class_executor(
+            self._apply_model,
+            self,
+            comfy.patcher_extension.get_all_wrappers(comfy.patcher_extension.WrappersMP.APPLY_MODEL, transformer_options)
+        ).execute(x, t, c_concat, c_crossattn, control, transformer_options, **kwargs)
+
+    def _apply_model(self, x, t, c_concat=None, c_crossattn=None, control=None, transformer_options={}, **kwargs):
         sigma = t
         xc = self.model_sampling.calculate_input(sigma, x)
         if c_concat is not None:
@@ -200,23 +212,23 @@ class BaseModel(torch.nn.Module):
         out = {}
         concat_cond = self.concat_cond(**kwargs)
         if concat_cond is not None:
-            out['c_concat'] = ComfyUI.conds.CONDNoiseShape(concat_cond)
+            out['c_concat'] = comfy.conds.CONDNoiseShape(concat_cond)
 
         adm = self.encode_adm(**kwargs)
         if adm is not None:
-            out['y'] = ComfyUI.conds.CONDRegular(adm)
+            out['y'] = comfy.conds.CONDRegular(adm)
 
         cross_attn = kwargs.get("cross_attn", None)
         if cross_attn is not None:
-            out['c_crossattn'] = ComfyUI.conds.CONDCrossAttn(cross_attn)
+            out['c_crossattn'] = comfy.conds.CONDCrossAttn(cross_attn)
 
         cross_attn_cnet = kwargs.get("cross_attn_controlnet", None)
         if cross_attn_cnet is not None:
-            out['crossattn_controlnet'] = ComfyUI.conds.CONDCrossAttn(cross_attn_cnet)
+            out['crossattn_controlnet'] = comfy.conds.CONDCrossAttn(cross_attn_cnet)
 
         c_concat = kwargs.get("noise_concat", None)
         if c_concat is not None:
-            out['c_concat'] = ComfyUI.conds.CONDNoiseShape(c_concat)
+            out['c_concat'] = comfy.conds.CONDNoiseShape(c_concat)
 
         return out
 
@@ -280,13 +292,13 @@ class BaseModel(torch.nn.Module):
         self.blank_inpaint_image_like = blank_inpaint_image_like
 
     def memory_required(self, input_shape):
-        if ComfyUI.model_management.xformers_enabled() or ComfyUI.model_management.pytorch_attention_flash_attention():
+        if comfy.model_management.xformers_enabled() or comfy.model_management.pytorch_attention_flash_attention():
             dtype = self.get_dtype()
             if self.manual_cast_dtype is not None:
                 dtype = self.manual_cast_dtype
             #TODO: this needs to be tweaked
             area = input_shape[0] * math.prod(input_shape[2:])
-            return (area * ComfyUI.model_management.dtype_size(dtype) * 0.01 * self.memory_usage_factor) * (1024 * 1024)
+            return (area * comfy.model_management.dtype_size(dtype) * 0.01 * self.memory_usage_factor) * (1024 * 1024)
         else:
             #TODO: this formula might be too aggressive since I tweaked the sub-quad and split algorithms to use less memory.
             area = input_shape[0] * math.prod(input_shape[2:])
@@ -411,7 +423,7 @@ class SVD_img2vid(BaseModel):
         out = {}
         adm = self.encode_adm(**kwargs)
         if adm is not None:
-            out['y'] = ComfyUI.conds.CONDRegular(adm)
+            out['y'] = comfy.conds.CONDRegular(adm)
 
         latent_image = kwargs.get("concat_latent_image", None)
         noise = kwargs.get("noise", None)
@@ -425,16 +437,16 @@ class SVD_img2vid(BaseModel):
 
         latent_image = utils.resize_to_batch_size(latent_image, noise.shape[0])
 
-        out['c_concat'] = ComfyUI.conds.CONDNoiseShape(latent_image)
+        out['c_concat'] = comfy.conds.CONDNoiseShape(latent_image)
 
         cross_attn = kwargs.get("cross_attn", None)
         if cross_attn is not None:
-            out['c_crossattn'] = ComfyUI.conds.CONDCrossAttn(cross_attn)
+            out['c_crossattn'] = comfy.conds.CONDCrossAttn(cross_attn)
 
         if "time_conditioning" in kwargs:
-            out["time_context"] = ComfyUI.conds.CONDCrossAttn(kwargs["time_conditioning"])
+            out["time_context"] = comfy.conds.CONDCrossAttn(kwargs["time_conditioning"])
 
-        out['num_video_frames'] = ComfyUI.conds.CONDConstant(noise.shape[0])
+        out['num_video_frames'] = comfy.conds.CONDConstant(noise.shape[0])
         return out
 
 class SV3D_u(SVD_img2vid):
@@ -470,7 +482,7 @@ class SV3D_p(SVD_img2vid):
 class Stable_Zero123(BaseModel):
     def __init__(self, model_config, model_type=ModelType.EPS, device=None, cc_projection_weight=None, cc_projection_bias=None):
         super().__init__(model_config, model_type, device=device)
-        self.cc_projection = ComfyUI.ops.manual_cast.Linear(cc_projection_weight.shape[1], cc_projection_weight.shape[0], dtype=self.get_dtype(), device=device)
+        self.cc_projection = comfy.ops.manual_cast.Linear(cc_projection_weight.shape[1], cc_projection_weight.shape[0], dtype=self.get_dtype(), device=device)
         self.cc_projection.weight.copy_(cc_projection_weight)
         self.cc_projection.bias.copy_(cc_projection_bias)
 
@@ -488,13 +500,13 @@ class Stable_Zero123(BaseModel):
 
         latent_image = utils.resize_to_batch_size(latent_image, noise.shape[0])
 
-        out['c_concat'] = ComfyUI.conds.CONDNoiseShape(latent_image)
+        out['c_concat'] = comfy.conds.CONDNoiseShape(latent_image)
 
         cross_attn = kwargs.get("cross_attn", None)
         if cross_attn is not None:
             if cross_attn.shape[-1] != 768:
                 cross_attn = self.cc_projection(cross_attn)
-            out['c_crossattn'] = ComfyUI.conds.CONDCrossAttn(cross_attn)
+            out['c_crossattn'] = comfy.conds.CONDCrossAttn(cross_attn)
         return out
 
 class SD_X4Upscaler(BaseModel):
@@ -525,8 +537,8 @@ class SD_X4Upscaler(BaseModel):
 
         image = utils.resize_to_batch_size(image, noise.shape[0])
 
-        out['c_concat'] = ComfyUI.conds.CONDNoiseShape(image)
-        out['y'] = ComfyUI.conds.CONDRegular(noise_level)
+        out['c_concat'] = comfy.conds.CONDNoiseShape(image)
+        out['y'] = comfy.conds.CONDRegular(noise_level)
         return out
 
 class IP2P:
@@ -555,7 +567,7 @@ class SDXL_instructpix2pix(IP2P, SDXL):
     def __init__(self, model_config, model_type=ModelType.EPS, device=None):
         super().__init__(model_config, model_type, device=device)
         if model_type == ModelType.V_PREDICTION_EDM:
-            self.process_ip2p_image_in = lambda image: ComfyUI.latent_formats.SDXL().process_in(image) #cosxl ip2p
+            self.process_ip2p_image_in = lambda image: comfy.latent_formats.SDXL().process_in(image) #cosxl ip2p
         else:
             self.process_ip2p_image_in = lambda image: image #diffusers ip2p
 
@@ -569,7 +581,7 @@ class StableCascade_C(BaseModel):
         out = {}
         clip_text_pooled = kwargs["pooled_output"]
         if clip_text_pooled is not None:
-            out['clip_text_pooled'] = ComfyUI.conds.CONDRegular(clip_text_pooled)
+            out['clip_text_pooled'] = comfy.conds.CONDRegular(clip_text_pooled)
 
         if "unclip_conditioning" in kwargs:
             embeds = []
@@ -579,13 +591,13 @@ class StableCascade_C(BaseModel):
             clip_img = torch.cat(embeds, dim=1)
         else:
             clip_img = torch.zeros((1, 1, 768))
-        out["clip_img"] = ComfyUI.conds.CONDRegular(clip_img)
-        out["sca"] = ComfyUI.conds.CONDRegular(torch.zeros((1,)))
-        out["crp"] = ComfyUI.conds.CONDRegular(torch.zeros((1,)))
+        out["clip_img"] = comfy.conds.CONDRegular(clip_img)
+        out["sca"] = comfy.conds.CONDRegular(torch.zeros((1,)))
+        out["crp"] = comfy.conds.CONDRegular(torch.zeros((1,)))
 
         cross_attn = kwargs.get("cross_attn", None)
         if cross_attn is not None:
-            out['clip_text'] = ComfyUI.conds.CONDCrossAttn(cross_attn)
+            out['clip_text'] = comfy.conds.CONDCrossAttn(cross_attn)
         return out
 
 
@@ -600,13 +612,13 @@ class StableCascade_B(BaseModel):
 
         clip_text_pooled = kwargs["pooled_output"]
         if clip_text_pooled is not None:
-            out['clip'] = ComfyUI.conds.CONDRegular(clip_text_pooled)
+            out['clip'] = comfy.conds.CONDRegular(clip_text_pooled)
 
         #size of prior doesn't really matter if zeros because it gets resized but I still want it to get batched
         prior = kwargs.get("stable_cascade_prior", torch.zeros((1, 16, (noise.shape[2] * 4) // 42, (noise.shape[3] * 4) // 42), dtype=noise.dtype, layout=noise.layout, device=noise.device))
 
-        out["effnet"] = ComfyUI.conds.CONDRegular(prior)
-        out["sca"] = ComfyUI.conds.CONDRegular(torch.zeros((1,)))
+        out["effnet"] = comfy.conds.CONDRegular(prior)
+        out["sca"] = comfy.conds.CONDRegular(torch.zeros((1,)))
         return out
 
 
@@ -621,27 +633,27 @@ class SD3(BaseModel):
         out = super().extra_conds(**kwargs)
         cross_attn = kwargs.get("cross_attn", None)
         if cross_attn is not None:
-            out['c_crossattn'] = ComfyUI.conds.CONDRegular(cross_attn)
+            out['c_crossattn'] = comfy.conds.CONDRegular(cross_attn)
         return out
 
 
 class AuraFlow(BaseModel):
     def __init__(self, model_config, model_type=ModelType.FLOW, device=None):
-        super().__init__(model_config, model_type, device=device, unet_model=ComfyUI.ldm.aura.mmdit.MMDiT)
+        super().__init__(model_config, model_type, device=device, unet_model=comfy.ldm.aura.mmdit.MMDiT)
 
     def extra_conds(self, **kwargs):
         out = super().extra_conds(**kwargs)
         cross_attn = kwargs.get("cross_attn", None)
         if cross_attn is not None:
-            out['c_crossattn'] = ComfyUI.conds.CONDRegular(cross_attn)
+            out['c_crossattn'] = comfy.conds.CONDRegular(cross_attn)
         return out
 
 
 class StableAudio1(BaseModel):
     def __init__(self, model_config, seconds_start_embedder_weights, seconds_total_embedder_weights, model_type=ModelType.V_PREDICTION_CONTINUOUS, device=None):
-        super().__init__(model_config, model_type, device=device, unet_model=ComfyUI.ldm.audio.dit.AudioDiffusionTransformer)
-        self.seconds_start_embedder = ComfyUI.ldm.audio.embedders.NumberConditioner(768, min_val=0, max_val=512)
-        self.seconds_total_embedder = ComfyUI.ldm.audio.embedders.NumberConditioner(768, min_val=0, max_val=512)
+        super().__init__(model_config, model_type, device=device, unet_model=comfy.ldm.audio.dit.AudioDiffusionTransformer)
+        self.seconds_start_embedder = comfy.ldm.audio.embedders.NumberConditioner(768, min_val=0, max_val=512)
+        self.seconds_total_embedder = comfy.ldm.audio.embedders.NumberConditioner(768, min_val=0, max_val=512)
         self.seconds_start_embedder.load_state_dict(seconds_start_embedder_weights)
         self.seconds_total_embedder.load_state_dict(seconds_total_embedder_weights)
 
@@ -658,12 +670,12 @@ class StableAudio1(BaseModel):
         seconds_total_embed = self.seconds_total_embedder([seconds_total])[0].to(device)
 
         global_embed = torch.cat([seconds_start_embed, seconds_total_embed], dim=-1).reshape((1, -1))
-        out['global_embed'] = ComfyUI.conds.CONDRegular(global_embed)
+        out['global_embed'] = comfy.conds.CONDRegular(global_embed)
 
         cross_attn = kwargs.get("cross_attn", None)
         if cross_attn is not None:
             cross_attn = torch.cat([cross_attn.to(device), seconds_start_embed.repeat((cross_attn.shape[0], 1, 1)), seconds_total_embed.repeat((cross_attn.shape[0], 1, 1))], dim=1)
-            out['c_crossattn'] = ComfyUI.conds.CONDRegular(cross_attn)
+            out['c_crossattn'] = comfy.conds.CONDRegular(cross_attn)
         return out
 
     def state_dict_for_saving(self, clip_state_dict=None, vae_state_dict=None, clip_vision_state_dict=None):
@@ -677,25 +689,25 @@ class StableAudio1(BaseModel):
 
 class HunyuanDiT(BaseModel):
     def __init__(self, model_config, model_type=ModelType.V_PREDICTION, device=None):
-        super().__init__(model_config, model_type, device=device, unet_model=ComfyUI.ldm.hydit.models.HunYuanDiT)
+        super().__init__(model_config, model_type, device=device, unet_model=comfy.ldm.hydit.models.HunYuanDiT)
 
     def extra_conds(self, **kwargs):
         out = super().extra_conds(**kwargs)
         cross_attn = kwargs.get("cross_attn", None)
         if cross_attn is not None:
-            out['c_crossattn'] = ComfyUI.conds.CONDRegular(cross_attn)
+            out['c_crossattn'] = comfy.conds.CONDRegular(cross_attn)
 
         attention_mask = kwargs.get("attention_mask", None)
         if attention_mask is not None:
-            out['text_embedding_mask'] = ComfyUI.conds.CONDRegular(attention_mask)
+            out['text_embedding_mask'] = comfy.conds.CONDRegular(attention_mask)
 
         conditioning_mt5xl = kwargs.get("conditioning_mt5xl", None)
         if conditioning_mt5xl is not None:
-            out['encoder_hidden_states_t5'] = ComfyUI.conds.CONDRegular(conditioning_mt5xl)
+            out['encoder_hidden_states_t5'] = comfy.conds.CONDRegular(conditioning_mt5xl)
 
         attention_mask_mt5xl = kwargs.get("attention_mask_mt5xl", None)
         if attention_mask_mt5xl is not None:
-            out['text_embedding_mask_t5'] = ComfyUI.conds.CONDRegular(attention_mask_mt5xl)
+            out['text_embedding_mask_t5'] = comfy.conds.CONDRegular(attention_mask_mt5xl)
 
         width = kwargs.get("width", 768)
         height = kwargs.get("height", 768)
@@ -704,12 +716,12 @@ class HunyuanDiT(BaseModel):
         target_width = kwargs.get("target_width", width)
         target_height = kwargs.get("target_height", height)
 
-        out['image_meta_size'] = ComfyUI.conds.CONDRegular(torch.FloatTensor([[height, width, target_height, target_width, 0, 0]]))
+        out['image_meta_size'] = comfy.conds.CONDRegular(torch.FloatTensor([[height, width, target_height, target_width, 0, 0]]))
         return out
 
 class Flux(BaseModel):
     def __init__(self, model_config, model_type=ModelType.FLUX, device=None):
-        super().__init__(model_config, model_type, device=device, unet_model=ComfyUI.ldm.flux.model.Flux)
+        super().__init__(model_config, model_type, device=device, unet_model=comfy.ldm.flux.model.Flux)
 
     def concat_cond(self, **kwargs):
         try:
@@ -756,41 +768,41 @@ class Flux(BaseModel):
         out = super().extra_conds(**kwargs)
         cross_attn = kwargs.get("cross_attn", None)
         if cross_attn is not None:
-            out['c_crossattn'] = ComfyUI.conds.CONDRegular(cross_attn)
-        out['guidance'] = ComfyUI.conds.CONDRegular(torch.FloatTensor([kwargs.get("guidance", 3.5)]))
+            out['c_crossattn'] = comfy.conds.CONDRegular(cross_attn)
+        out['guidance'] = comfy.conds.CONDRegular(torch.FloatTensor([kwargs.get("guidance", 3.5)]))
         return out
 
 class GenmoMochi(BaseModel):
     def __init__(self, model_config, model_type=ModelType.FLOW, device=None):
-        super().__init__(model_config, model_type, device=device, unet_model=ComfyUI.ldm.genmo.joint_model.asymm_models_joint.AsymmDiTJoint)
+        super().__init__(model_config, model_type, device=device, unet_model=comfy.ldm.genmo.joint_model.asymm_models_joint.AsymmDiTJoint)
 
     def extra_conds(self, **kwargs):
         out = super().extra_conds(**kwargs)
         attention_mask = kwargs.get("attention_mask", None)
         if attention_mask is not None:
-            out['attention_mask'] = ComfyUI.conds.CONDRegular(attention_mask)
-            out['num_tokens'] = ComfyUI.conds.CONDConstant(max(1, torch.sum(attention_mask).item()))
+            out['attention_mask'] = comfy.conds.CONDRegular(attention_mask)
+            out['num_tokens'] = comfy.conds.CONDConstant(max(1, torch.sum(attention_mask).item()))
         cross_attn = kwargs.get("cross_attn", None)
         if cross_attn is not None:
-            out['c_crossattn'] = ComfyUI.conds.CONDRegular(cross_attn)
+            out['c_crossattn'] = comfy.conds.CONDRegular(cross_attn)
         return out
 
 class LTXV(BaseModel):
     def __init__(self, model_config, model_type=ModelType.FLUX, device=None):
-        super().__init__(model_config, model_type, device=device, unet_model=ComfyUI.ldm.lightricks.model.LTXVModel) #TODO
+        super().__init__(model_config, model_type, device=device, unet_model=comfy.ldm.lightricks.model.LTXVModel) #TODO
 
     def extra_conds(self, **kwargs):
         out = super().extra_conds(**kwargs)
         attention_mask = kwargs.get("attention_mask", None)
         if attention_mask is not None:
-            out['attention_mask'] = ComfyUI.conds.CONDRegular(attention_mask)
+            out['attention_mask'] = comfy.conds.CONDRegular(attention_mask)
         cross_attn = kwargs.get("cross_attn", None)
         if cross_attn is not None:
-            out['c_crossattn'] = ComfyUI.conds.CONDRegular(cross_attn)
+            out['c_crossattn'] = comfy.conds.CONDRegular(cross_attn)
 
         guiding_latent = kwargs.get("guiding_latent", None)
         if guiding_latent is not None:
-            out['guiding_latent'] = ComfyUI.conds.CONDRegular(guiding_latent)
+            out['guiding_latent'] = comfy.conds.CONDRegular(guiding_latent)
 
-        out['frame_rate'] = ComfyUI.conds.CONDConstant(kwargs.get("frame_rate", 25))
+        out['frame_rate'] = comfy.conds.CONDConstant(kwargs.get("frame_rate", 25))
         return out

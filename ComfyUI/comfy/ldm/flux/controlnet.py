@@ -11,7 +11,7 @@ from .layers import (DoubleStreamBlock, EmbedND, LastLayer,
                                  timestep_embedding)
 
 from .model import Flux
-import ComfyUI.ldm.common_dit
+import comfy.ldm.common_dit
 
 class MistolineCondDownsamplBlock(nn.Module):
     def __init__(self, dtype=None, device=None, operations=None):
@@ -179,7 +179,7 @@ class ControlNetFlux(Flux):
     def forward(self, x, timesteps, context, y, guidance=None, hint=None, **kwargs):
         patch_size = 2
         if self.latent_input:
-            hint = ComfyUI.ldm.common_dit.pad_to_patch_size(hint, (patch_size, patch_size))
+            hint = comfy.ldm.common_dit.pad_to_patch_size(hint, (patch_size, patch_size))
         elif self.mistoline:
             hint = hint * 2.0 - 1.0
             hint = self.input_cond_block(hint)
@@ -190,7 +190,7 @@ class ControlNetFlux(Flux):
         hint = rearrange(hint, "b c (h ph) (w pw) -> b (h w) (c ph pw)", ph=patch_size, pw=patch_size)
 
         bs, c, h, w = x.shape
-        x = ComfyUI.ldm.common_dit.pad_to_patch_size(x, (patch_size, patch_size))
+        x = comfy.ldm.common_dit.pad_to_patch_size(x, (patch_size, patch_size))
 
         img = rearrange(x, "b c (h ph) (w pw) -> b (h w) (c ph pw)", ph=patch_size, pw=patch_size)
 

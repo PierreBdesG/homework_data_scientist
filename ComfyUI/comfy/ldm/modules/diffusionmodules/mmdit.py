@@ -8,8 +8,8 @@ import torch.nn as nn
 from ..attention import optimized_attention
 from einops import rearrange, repeat
 from .util import timestep_embedding
-import ComfyUI.ops
-import ComfyUI.ldm.common_dit
+import comfy.ops
+import comfy.ldm.common_dit
 
 def default(x, y):
     if x is not None:
@@ -112,7 +112,7 @@ class PatchEmbed(nn.Module):
         #             f"Input width ({W}) should be divisible by patch size ({self.patch_size[1]})."
         #         )
         if self.dynamic_img_pad:
-            x = ComfyUI.ldm.common_dit.pad_to_patch_size(x, self.patch_size, padding_mode=self.padding_mode)
+            x = comfy.ldm.common_dit.pad_to_patch_size(x, self.patch_size, padding_mode=self.padding_mode)
         x = self.proj(x)
         if self.flatten:
             x = x.flatten(2).transpose(1, 2)  # NCHW -> NLC
@@ -354,7 +354,7 @@ class RMSNorm(torch.nn.Module):
             self.register_parameter("weight", None)
 
     def forward(self, x):
-        return ComfyUI.ldm.common_dit.rms_norm(x, self.weight, self.eps)
+        return comfy.ldm.common_dit.rms_norm(x, self.weight, self.eps)
 
 
 
@@ -1012,7 +1012,7 @@ class MMDiT(nn.Module):
             context = self.context_processor(context)
 
         hw = x.shape[-2:]
-        x = self.x_embedder(x) + ComfyUI.ops.cast_to_input(self.cropped_pos_embed(hw, device=x.device), x)
+        x = self.x_embedder(x) + comfy.ops.cast_to_input(self.cropped_pos_embed(hw, device=x.device), x)
         c = self.t_embedder(t, dtype=x.dtype)  # (N, D)
         if y is not None and self.y_embedder is not None:
             y = self.y_embedder(y)  # (N, D)

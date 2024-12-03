@@ -6,16 +6,16 @@ import torch.nn.functional as F
 
 from torch.utils import checkpoint
 
-from ComfyUI.ldm.modules.diffusionmodules.mmdit import (
+from comfy.ldm.modules.diffusionmodules.mmdit import (
     Mlp,
     TimestepEmbedder,
     PatchEmbed,
     RMSNorm,
 )
-from ComfyUI.ldm.modules.diffusionmodules.util import timestep_embedding
+from comfy.ldm.modules.diffusionmodules.util import timestep_embedding
 from .poolers import AttentionPool
 
-import ComfyUI.latent_formats
+import comfy.latent_formats
 from .models import HunYuanDiTBlock, calc_rope
 
 from .posemb_layers import get_2d_rotary_pos_embed, get_fill_resize_and_crop
@@ -93,7 +93,7 @@ class HunYuanControlNet(nn.Module):
         self.use_style_cond = use_style_cond
         self.norm = norm
         self.dtype = dtype
-        self.latent_format = ComfyUI.latent_formats.SDXL
+        self.latent_format = comfy.latent_formats.SDXL
 
         self.mlp_t5 = nn.Sequential(
             nn.Linear(
@@ -261,7 +261,7 @@ class HunYuanControlNet(nn.Module):
         b_t5, l_t5, c_t5 = text_states_t5.shape
         text_states_t5 = self.mlp_t5(text_states_t5.view(-1, c_t5)).view(b_t5, l_t5, -1)
 
-        padding = ComfyUI.ops.cast_to_input(self.text_embedding_padding, text_states)
+        padding = comfy.ops.cast_to_input(self.text_embedding_padding, text_states)
 
         text_states[:, -self.text_len :] = torch.where(
             text_states_mask[:, -self.text_len :].unsqueeze(2),

@@ -4,10 +4,10 @@ import torch.nn.functional as F
 import math
 
 from einops import rearrange, repeat
-from ComfyUI.ldm.modules.attention import optimized_attention
-import ComfyUI.samplers
+from comfy.ldm.modules.attention import optimized_attention
+import comfy.samplers
 
-# from ComfyUI/ldm/modules/attention.py
+# from comfy/ldm/modules/attention.py
 # but modified to return attention scores as well as output
 def attention_basic_with_sim(q, k, v, heads, mask=None, attn_precision=None):
     b, _, dim_head = q.shape
@@ -161,7 +161,7 @@ class SelfAttentionGuidance:
             degraded = create_blur_map(uncond_pred, uncond_attn, sag_sigma, sag_threshold)
             degraded_noised = degraded + x - uncond_pred
             # call into the UNet
-            (sag,) = ComfyUI.samplers.calc_cond_batch(model, [uncond], degraded_noised, sigma, model_options)
+            (sag,) = comfy.samplers.calc_cond_batch(model, [uncond], degraded_noised, sigma, model_options)
             return cfg_result + (degraded - sag) * sag_scale
 
         m.set_model_sampler_post_cfg_function(post_cfg_function, disable_cfg1_optimization=True)

@@ -6,7 +6,7 @@ from torch import Tensor, einsum
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, TypeVar, Union
 from einops import rearrange
 import math
-import ComfyUI.ops
+import comfy.ops
 
 class LearnedPositionalEmbedding(nn.Module):
     """Used for continuous time"""
@@ -27,7 +27,7 @@ class LearnedPositionalEmbedding(nn.Module):
 def TimePositionalEmbedding(dim: int, out_features: int) -> nn.Module:
     return nn.Sequential(
         LearnedPositionalEmbedding(dim),
-        ComfyUI.ops.manual_cast.Linear(in_features=dim + 1, out_features=out_features),
+        comfy.ops.manual_cast.Linear(in_features=dim + 1, out_features=out_features),
     )
 
 

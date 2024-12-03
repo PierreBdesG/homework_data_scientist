@@ -4,14 +4,14 @@ from . import utils
 
 from . import sd1_clip
 from . import sdxl_clip
-import ComfyUI.text_encoders.sd2_clip
-import ComfyUI.text_encoders.sd3_clip
-import ComfyUI.text_encoders.sa_t5
-import ComfyUI.text_encoders.aura_t5
-import ComfyUI.text_encoders.hydit
-import ComfyUI.text_encoders.flux
-import ComfyUI.text_encoders.genmo
-import ComfyUI.text_encoders.lt
+import comfy.text_encoders.sd2_clip
+import comfy.text_encoders.sd3_clip
+import comfy.text_encoders.sa_t5
+import comfy.text_encoders.aura_t5
+import comfy.text_encoders.hydit
+import comfy.text_encoders.flux
+import comfy.text_encoders.genmo
+import comfy.text_encoders.lt
 
 from . import supported_models_base
 from . import latent_formats
@@ -106,7 +106,7 @@ class SD20(supported_models_base.BASE):
         return state_dict
 
     def clip_target(self, state_dict={}):
-        return supported_models_base.ClipTarget(ComfyUI.text_encoders.sd2_clip.SD2Tokenizer, ComfyUI.text_encoders.sd2_clip.SD2ClipModel)
+        return supported_models_base.ClipTarget(comfy.text_encoders.sd2_clip.SD2Tokenizer, comfy.text_encoders.sd2_clip.SD2ClipModel)
 
 class SD21UnclipL(SD20):
     unet_config = {
@@ -533,11 +533,11 @@ class SD3(supported_models_base.BASE):
             clip_l = True
         if "{}clip_g.transformer.text_model.final_layer_norm.weight".format(pref) in state_dict:
             clip_g = True
-        t5_detect = ComfyUI.text_encoders.sd3_clip.t5_xxl_detect(state_dict, "{}t5xxl.transformer.".format(pref))
+        t5_detect = comfy.text_encoders.sd3_clip.t5_xxl_detect(state_dict, "{}t5xxl.transformer.".format(pref))
         if "dtype_t5" in t5_detect:
             t5 = True
 
-        return supported_models_base.ClipTarget(ComfyUI.text_encoders.sd3_clip.SD3Tokenizer, ComfyUI.text_encoders.sd3_clip.sd3_clip(clip_l=clip_l, clip_g=clip_g, t5=t5, **t5_detect))
+        return supported_models_base.ClipTarget(comfy.text_encoders.sd3_clip.SD3Tokenizer, comfy.text_encoders.sd3_clip.sd3_clip(clip_l=clip_l, clip_g=clip_g, t5=t5, **t5_detect))
 
 class StableAudio(supported_models_base.BASE):
     unet_config = {
@@ -568,7 +568,7 @@ class StableAudio(supported_models_base.BASE):
         return utils.state_dict_prefix_replace(state_dict, replace_prefix)
 
     def clip_target(self, state_dict={}):
-        return supported_models_base.ClipTarget(ComfyUI.text_encoders.sa_t5.SAT5Tokenizer, ComfyUI.text_encoders.sa_t5.SAT5Model)
+        return supported_models_base.ClipTarget(comfy.text_encoders.sa_t5.SAT5Tokenizer, comfy.text_encoders.sa_t5.SAT5Model)
 
 class AuraFlow(supported_models_base.BASE):
     unet_config = {
@@ -591,7 +591,7 @@ class AuraFlow(supported_models_base.BASE):
         return out
 
     def clip_target(self, state_dict={}):
-        return supported_models_base.ClipTarget(ComfyUI.text_encoders.aura_t5.AuraT5Tokenizer, ComfyUI.text_encoders.aura_t5.AuraT5Model)
+        return supported_models_base.ClipTarget(comfy.text_encoders.aura_t5.AuraT5Tokenizer, comfy.text_encoders.aura_t5.AuraT5Model)
 
 class HunyuanDiT(supported_models_base.BASE):
     unet_config = {
@@ -617,7 +617,7 @@ class HunyuanDiT(supported_models_base.BASE):
         return out
 
     def clip_target(self, state_dict={}):
-        return supported_models_base.ClipTarget(ComfyUI.text_encoders.hydit.HyditTokenizer, ComfyUI.text_encoders.hydit.HyditModel)
+        return supported_models_base.ClipTarget(comfy.text_encoders.hydit.HyditTokenizer, comfy.text_encoders.hydit.HyditModel)
 
 class HunyuanDiT1(HunyuanDiT):
     unet_config = {
@@ -656,8 +656,8 @@ class Flux(supported_models_base.BASE):
 
     def clip_target(self, state_dict={}):
         pref = self.text_encoder_key_prefix[0]
-        t5_detect = ComfyUI.text_encoders.sd3_clip.t5_xxl_detect(state_dict, "{}t5xxl.transformer.".format(pref))
-        return supported_models_base.ClipTarget(ComfyUI.text_encoders.flux.FluxTokenizer, ComfyUI.text_encoders.flux.flux_clip(**t5_detect))
+        t5_detect = comfy.text_encoders.sd3_clip.t5_xxl_detect(state_dict, "{}t5xxl.transformer.".format(pref))
+        return supported_models_base.ClipTarget(comfy.text_encoders.flux.FluxTokenizer, comfy.text_encoders.flux.flux_clip(**t5_detect))
 
 class FluxInpaint(Flux):
     unet_config = {
@@ -709,8 +709,8 @@ class GenmoMochi(supported_models_base.BASE):
 
     def clip_target(self, state_dict={}):
         pref = self.text_encoder_key_prefix[0]
-        t5_detect = ComfyUI.text_encoders.sd3_clip.t5_xxl_detect(state_dict, "{}t5xxl.transformer.".format(pref))
-        return supported_models_base.ClipTarget(ComfyUI.text_encoders.genmo.MochiT5Tokenizer, ComfyUI.text_encoders.genmo.mochi_te(**t5_detect))
+        t5_detect = comfy.text_encoders.sd3_clip.t5_xxl_detect(state_dict, "{}t5xxl.transformer.".format(pref))
+        return supported_models_base.ClipTarget(comfy.text_encoders.genmo.MochiT5Tokenizer, comfy.text_encoders.genmo.mochi_te(**t5_detect))
 
 class LTXV(supported_models_base.BASE):
     unet_config = {
@@ -737,8 +737,8 @@ class LTXV(supported_models_base.BASE):
 
     def clip_target(self, state_dict={}):
         pref = self.text_encoder_key_prefix[0]
-        t5_detect = ComfyUI.text_encoders.sd3_clip.t5_xxl_detect(state_dict, "{}t5xxl.transformer.".format(pref))
-        return supported_models_base.ClipTarget(ComfyUI.text_encoders.lt.LTXVT5Tokenizer, ComfyUI.text_encoders.lt.ltxv_te(**t5_detect))
+        t5_detect = comfy.text_encoders.sd3_clip.t5_xxl_detect(state_dict, "{}t5xxl.transformer.".format(pref))
+        return supported_models_base.ClipTarget(comfy.text_encoders.lt.LTXVT5Tokenizer, comfy.text_encoders.lt.ltxv_te(**t5_detect))
 
 models = [Stable_Zero123, SD15_instructpix2pix, SD15, SD20, SD21UnclipL, SD21UnclipH, SDXL_instructpix2pix, SDXLRefiner, SDXL, SSD1B, KOALA_700M, KOALA_1B, Segmind_Vega, SD_X4Upscaler, Stable_Cascade_C, Stable_Cascade_B, SV3D_u, SV3D_p, SD3, StableAudio, AuraFlow, HunyuanDiT, HunyuanDiT1, FluxInpaint, Flux, FluxSchnell, GenmoMochi, LTXV]
 

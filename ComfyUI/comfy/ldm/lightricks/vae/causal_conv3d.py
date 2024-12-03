@@ -2,8 +2,8 @@ from typing import Tuple, Union
 
 import torch
 import torch.nn as nn
-import ComfyUI.ops
-ops = ComfyUI.ops.disable_weight_init
+import comfy.ops
+ops = comfy.ops.disable_weight_init
 
 
 class CausalConv3d(nn.Module):

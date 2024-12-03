@@ -23,9 +23,9 @@ from aiohttp import web
 import logging
 
 import mimetypes
-from ComfyUI.cli_args import args
-import ComfyUI.utils
-import ComfyUI.model_management
+from comfy.cli_args import args
+import comfy.utils
+import comfy.model_management
 import node_helpers
 from app.frontend_management import FrontendManager
 from app.user_manager import UserManager
@@ -110,7 +110,7 @@ def is_loopback(host):
 def create_origin_only_middleware():
     @web.middleware
     async def origin_only_middleware(request: web.Request, handler):
-        #this code is used to prevent the case where a random website can queue ComfyUI workflows by making a POST to 127.0.0.1 which browsers don't prevent for some dumb reason.
+        #this code is used to prevent the case where a random website can queue comfy workflows by making a POST to 127.0.0.1 which browsers don't prevent for some dumb reason.
         #in that case the Host and Origin hostnames won't match
         #I know the proper fix would be to add a cookie but this should take care of the problem in the meantime
         if 'Host' in request.headers and 'Origin' in request.headers:
@@ -477,7 +477,7 @@ class PromptServer():
             safetensors_path = folder_paths.get_full_path(folder_name, filename)
             if safetensors_path is None:
                 return web.Response(status=404)
-            out = ComfyUI.utils.safetensors_header(safetensors_path, max_size=1024 * 1024)
+            out = comfy.utils.safetensors_header(safetensors_path, max_size=1024*1024)
             if out is None:
                 return web.Response(status=404)
             dt = json.loads(out)
@@ -487,13 +487,13 @@ class PromptServer():
 
         @routes.get("/system_stats")
         async def system_stats(request):
-            device = ComfyUI.model_management.get_torch_device()
-            device_name = ComfyUI.model_management.get_torch_device_name(device)
-            cpu_device = ComfyUI.model_management.torch.device("cpu")
-            ram_total = ComfyUI.model_management.get_total_memory(cpu_device)
-            ram_free = ComfyUI.model_management.get_free_memory(cpu_device)
-            vram_total, torch_vram_total = ComfyUI.model_management.get_total_memory(device, torch_total_too=True)
-            vram_free, torch_vram_free = ComfyUI.model_management.get_free_memory(device, torch_free_too=True)
+            device = comfy.model_management.get_torch_device()
+            device_name = comfy.model_management.get_torch_device_name(device)
+            cpu_device = comfy.model_management.torch.device("cpu")
+            ram_total = comfy.model_management.get_total_memory(cpu_device)
+            ram_free = comfy.model_management.get_free_memory(cpu_device)
+            vram_total, torch_vram_total = comfy.model_management.get_total_memory(device, torch_total_too=True)
+            vram_free, torch_vram_free = comfy.model_management.get_free_memory(device, torch_free_too=True)
 
             system_stats = {
                 "system": {
@@ -502,7 +502,7 @@ class PromptServer():
                     "ram_free": ram_free,
                     "comfyui_version": get_comfyui_version(),
                     "python_version": sys.version,
-                    "pytorch_version": ComfyUI.model_management.torch_version,
+                    "pytorch_version": comfy.model_management.torch_version,
                     "embedded_python": os.path.split(os.path.split(sys.executable)[0])[1] == "python_embeded",
                     "argv": sys.argv
                 },

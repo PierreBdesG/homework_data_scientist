@@ -1,4 +1,4 @@
-from ComfyUI import sd1_clip
+from comfy import sd1_clip
 import os
 
 class LongClipTokenizer_(sd1_clip.SDTokenizer):

@@ -18300,7 +18300,7 @@ var NodeSourceType = /* @__PURE__ */ ((NodeSourceType2) => {
 })(NodeSourceType || {});
 const UNKNOWN_NODE_SOURCE = {
   type: "unknown",
-  className: "ComfyUI-unknown",
+  className: "comfy-unknown",
   displayText: "Unknown",
   badgeText: "?"
 };
@@ -18315,7 +18315,7 @@ const getNodeSource = /* @__PURE__ */ __name((python_module) => {
   if (["nodes", "comfy_extras"].includes(modules[0])) {
     return {
       type: "core",
-      className: "ComfyUI-core",
+      className: "comfy-core",
       displayText: "Comfy Core",
       badgeText: "🦊"
     };
@@ -18323,7 +18323,7 @@ const getNodeSource = /* @__PURE__ */ __name((python_module) => {
     const displayName = shortenNodeName(modules[1]);
     return {
       type: "custom_nodes",
-      className: "ComfyUI-custom-nodes",
+      className: "comfy-custom-nodes",
       displayText: displayName,
       badgeText: displayName
     };
@@ -28288,8 +28288,8 @@ let ComfyDialog$1 = class ComfyDialog2 extends EventTarget {
   constructor(type = "div", buttons = null) {
     super();
     this.#buttons = buttons;
-    this.element = $el(type + ".ComfyUI-modal", { parent: document.body }, [
-      $el("div.ComfyUI-modal-content", [
+    this.element = $el(type + ".comfy-modal", { parent: document.body }, [
+      $el("div.comfy-modal-content", [
         $el("p", { $: /* @__PURE__ */ __name((p2) => this.textElement = p2, "$") }),
         ...this.createButtons()
       ])
@@ -28327,14 +28327,14 @@ function toggleSwitch(name, items2, e2) {
   let elements;
   function updateSelected(index2) {
     if (selectedIndex != null) {
-      elements[selectedIndex].classList.remove("ComfyUI-toggle-selected");
+      elements[selectedIndex].classList.remove("comfy-toggle-selected");
     }
     onChange4?.({
       item: items2[index2],
       prev: selectedIndex == null ? void 0 : items2[selectedIndex]
     });
     selectedIndex = index2;
-    elements[selectedIndex].classList.add("ComfyUI-toggle-selected");
+    elements[selectedIndex].classList.add("comfy-toggle-selected");
   }
   __name(updateSelected, "updateSelected");
   elements = items2.map((item2, i) => {
@@ -28361,7 +28361,7 @@ function toggleSwitch(name, items2, e2) {
     }
     return toggle4;
   });
-  const container = $el("div.ComfyUI-toggle-switch", elements);
+  const container = $el("div.comfy-toggle-switch", elements);
   if (selectedIndex == null) {
     elements[0].children[0].checked = true;
     updateSelected(0);
@@ -28488,7 +28488,7 @@ class LLink {
   _data;
   /** Centre point of the link, calculated during render only - can be inaccurate */
   _pos;
-  /** @todo Clean up - never implemented in ComfyUI. */
+  /** @todo Clean up - never implemented in comfy. */
   _last_time;
   /** The last canvas 2D path that was used to render this link */
   path;
@@ -40779,7 +40779,7 @@ const CORE_SETTINGS = [
     type: "boolean",
     defaultValue: false,
     onChange: /* @__PURE__ */ __name((value3) => {
-      const element = document.getElementById("ComfyUI-dev-save-api-button");
+      const element = document.getElementById("comfy-dev-save-api-button");
       if (element) {
         element.style.display = value3 ? "flex" : "none";
       }
@@ -48361,7 +48361,7 @@ const _sfc_main$S = /* @__PURE__ */ defineComponent({
           options: uniqueNodes.value,
           optionLabel: "label",
           scrollHeight: "100%",
-          class: "ComfyUI-missing-nodes",
+          class: "comfy-missing-nodes",
           pt: {
             list: { class: "border-none" }
           }
@@ -54940,7 +54940,7 @@ const _sfc_main$P = /* @__PURE__ */ defineComponent({
         }),
         createVNode(unref(script$O), {
           options: missingModels.value,
-          class: "ComfyUI-missing-models"
+          class: "comfy-missing-models"
         }, {
           option: withCtx(({ option: option3 }) => [
             unref(isElectron)() ? (openBlock(), createBlock(Suspense, { key: 0 }, {
@@ -76472,9 +76472,9 @@ function computeSize(size2) {
       widgetHeight += w.computeSize()[1] + 4;
     } else if (w.element) {
       const styles = getComputedStyle(w.element);
-      let minHeight = w.options.getMinHeight?.() ?? parseInt(styles.getPropertyValue("--ComfyUI-widget-min-height"));
-      let maxHeight = w.options.getMaxHeight?.() ?? parseInt(styles.getPropertyValue("--ComfyUI-widget-max-height"));
-      let prefHeight = w.options.getHeight?.() ?? styles.getPropertyValue("--ComfyUI-widget-height");
+      let minHeight = w.options.getMinHeight?.() ?? parseInt(styles.getPropertyValue("--comfy-widget-min-height"));
+      let maxHeight = w.options.getMaxHeight?.() ?? parseInt(styles.getPropertyValue("--comfy-widget-max-height"));
+      let prefHeight = w.options.getHeight?.() ?? styles.getPropertyValue("--comfy-widget-height");
       if (prefHeight.endsWith?.("%")) {
         prefHeight = size2[1] * (parseFloat(prefHeight.substring(0, prefHeight.length - 1)) / 100);
       } else {
@@ -76957,7 +76957,7 @@ function createIntWidget(node3, inputName, inputData, app2, isSeedInput = false)
 __name(createIntWidget, "createIntWidget");
 function addMultilineWidget(node3, name, opts, app2) {
   const inputEl = document.createElement("textarea");
-  inputEl.className = "ComfyUI-multiline-input";
+  inputEl.className = "comfy-multiline-input";
   inputEl.value = opts.defaultVal;
   inputEl.placeholder = opts.placeholder || name;
   if (app2.vueAppReady) {
@@ -78732,7 +78732,7 @@ function useCopyToClipboard() {
 }
 __name(useCopyToClipboard, "useCopyToClipboard");
 const _withScopeId$e = /* @__PURE__ */ __name((n) => (pushScopeId("data-v-db438f98"), n = n(), popScopeId(), n), "_withScopeId$e");
-const _hoisted_1$E = { class: "ComfyUI-error-report" };
+const _hoisted_1$E = { class: "comfy-error-report" };
 const _hoisted_2$r = { class: "wrapper-pre" };
 const _hoisted_3$e = { class: "action-container" };
 const repoOwner = "comfyanonymous";
@@ -79671,7 +79671,7 @@ function dragElement(dragEl, settings) {
   function elementDrag(e2) {
     e2 = e2 || window.event;
     e2.preventDefault();
-    dragEl.classList.add("ComfyUI-menu-manual-pos");
+    dragEl.classList.add("comfy-menu-manual-pos");
     posDiffX = e2.clientX - posStartX;
     posDiffY = e2.clientY - posStartY;
     posStartX = e2.clientX;
@@ -79711,7 +79711,7 @@ class ComfyList {
     this.#text = text;
     this.#type = type || text.toLowerCase();
     this.#reverse = reverse2 || false;
-    this.element = $el("div.ComfyUI-list");
+    this.element = $el("div.comfy-list");
     this.element.style.display = "none";
   }
   get visible() {
@@ -79724,7 +79724,7 @@ class ComfyList {
         $el("h4", {
           textContent: section
         }),
-        $el("div.ComfyUI-list-items", [
+        $el("div.comfy-list-items", [
           ...(this.#reverse ? items2[section].reverse() : items2[section]).map(
             (item2) => {
               const removeAction = "remove" in item2 ? item2.remove : {
@@ -79761,7 +79761,7 @@ class ComfyList {
           )
         ])
       ]),
-      $el("div.ComfyUI-list-actions", [
+      $el("div.comfy-list-actions", [
         $el("button", {
           textContent: "Clear " + this.#text,
           onclick: /* @__PURE__ */ __name(async () => {
@@ -79831,7 +79831,7 @@ class ComfyUI {
   }
   setup(containerElement) {
     const fileInput2 = $el("input", {
-      id: "ComfyUI-file-input",
+      id: "comfy-file-input",
       type: "file",
       accept: ".json,image/png,.latent,.safetensors,image/webp,audio/flac",
       style: { display: "none" },
@@ -79871,9 +79871,9 @@ class ComfyUI {
         }
       }
     });
-    this.menuContainer = $el("div.ComfyUI-menu", { parent: containerElement }, [
+    this.menuContainer = $el("div.comfy-menu", { parent: containerElement }, [
       $el(
-        "div.drag-handle.ComfyUI-menu-header",
+        "div.drag-handle.comfy-menu-header",
         {
           style: {
             overflow: "hidden",
@@ -79884,13 +79884,13 @@ class ComfyUI {
         },
         [
           $el("span.drag-handle"),
-          $el("span.ComfyUI-menu-queue-size", { $: /* @__PURE__ */ __name((q) => this.queueSize = q, "$") }),
-          $el("div.ComfyUI-menu-actions", [
-            $el("button.ComfyUI-settings-btn", {
+          $el("span.comfy-menu-queue-size", { $: /* @__PURE__ */ __name((q) => this.queueSize = q, "$") }),
+          $el("div.comfy-menu-actions", [
+            $el("button.comfy-settings-btn", {
               textContent: "⚙️",
               onclick: showSettingsDialog
             }),
-            $el("button.ComfyUI-close-menu-btn", {
+            $el("button.comfy-close-menu-btn", {
               textContent: "×",
               onclick: /* @__PURE__ */ __name(() => {
                 useWorkspaceStore().focusMode = true;
@@ -79899,7 +79899,7 @@ class ComfyUI {
           ])
         ]
       ),
-      $el("button.ComfyUI-queue-btn", {
+      $el("button.comfy-queue-btn", {
         id: "queue-button",
         textContent: "Queue Prompt",
         onclick: /* @__PURE__ */ __name(() => app$1.queuePrompt(0, this.batchCount), "onclick")
@@ -79973,7 +79973,7 @@ class ComfyUI {
           ])
         ]
       ),
-      $el("div.ComfyUI-menu-btns", [
+      $el("div.comfy-menu-btns", [
         $el("button", {
           id: "queue-front-button",
           textContent: "Queue Front",
@@ -79981,7 +79981,7 @@ class ComfyUI {
         }),
         $el("button", {
           $: /* @__PURE__ */ __name((b) => this.queue.button = b, "$"),
-          id: "ComfyUI-view-queue-button",
+          id: "comfy-view-queue-button",
           textContent: "View Queue",
           onclick: /* @__PURE__ */ __name(() => {
             this.history.hide();
@@ -79990,7 +79990,7 @@ class ComfyUI {
         }),
         $el("button", {
           $: /* @__PURE__ */ __name((b) => this.history.button = b, "$"),
-          id: "ComfyUI-view-history-button",
+          id: "comfy-view-history-button",
           textContent: "View History",
           onclick: /* @__PURE__ */ __name(() => {
             this.queue.hide();
@@ -80001,14 +80001,14 @@ class ComfyUI {
       this.queue.element,
       this.history.element,
       $el("button", {
-        id: "ComfyUI-save-button",
+        id: "comfy-save-button",
         textContent: "Save",
         onclick: /* @__PURE__ */ __name(() => {
           useCommandStore().execute("Comfy.ExportWorkflow");
         }, "onclick")
       }),
       $el("button", {
-        id: "ComfyUI-dev-save-api-button",
+        id: "comfy-dev-save-api-button",
         textContent: "Save (API Format)",
         style: { width: "100%", display: "none" },
         onclick: /* @__PURE__ */ __name(() => {
@@ -80016,22 +80016,22 @@ class ComfyUI {
         }, "onclick")
       }),
       $el("button", {
-        id: "ComfyUI-load-button",
+        id: "comfy-load-button",
         textContent: "Load",
         onclick: /* @__PURE__ */ __name(() => fileInput2.click(), "onclick")
       }),
       $el("button", {
-        id: "ComfyUI-refresh-button",
+        id: "comfy-refresh-button",
         textContent: "Refresh",
         onclick: /* @__PURE__ */ __name(() => app$1.refreshComboInNodes(), "onclick")
       }),
       $el("button", {
-        id: "ComfyUI-clipspace-button",
+        id: "comfy-clipspace-button",
         textContent: "Clipspace",
         onclick: /* @__PURE__ */ __name(() => app$1.openClipspace(), "onclick")
       }),
       $el("button", {
-        id: "ComfyUI-clear-button",
+        id: "comfy-clear-button",
         textContent: "Clear",
         onclick: /* @__PURE__ */ __name(() => {
           if (!useSettingStore().get("Comfy.ConfirmClear") || confirm("Clear workflow?")) {
@@ -80043,7 +80043,7 @@ class ComfyUI {
         }, "onclick")
       }),
       $el("button", {
-        id: "ComfyUI-load-default-button",
+        id: "comfy-load-default-button",
         textContent: "Load Default",
         onclick: /* @__PURE__ */ __name(async () => {
           if (!useSettingStore().get("Comfy.ConfirmClear") || confirm("Load default workflow?")) {
@@ -80053,7 +80053,7 @@ class ComfyUI {
         }, "onclick")
       }),
       $el("button", {
-        id: "ComfyUI-reset-view-button",
+        id: "comfy-reset-view-button",
         textContent: "Reset View",
         onclick: /* @__PURE__ */ __name(async () => {
           app$1.resetView();
@@ -80243,13 +80243,13 @@ class ComfyLoggingDialog extends ComfyDialog {
     };
     const keys2 = Object.keys(cols);
     const headers = Object.values(cols).map(
-      (title) => $el("div.ComfyUI-logging-title", {
+      (title) => $el("div.comfy-logging-title", {
         textContent: title
       })
     );
     const rows = entries.map((entry, i) => {
       return $el(
-        "div.ComfyUI-logging-log",
+        "div.comfy-logging-log",
         {
           $: /* @__PURE__ */ __name((el) => el.style.setProperty(
             "--row-bg",
@@ -80277,7 +80277,7 @@ class ComfyLoggingDialog extends ComfyDialog {
       );
     });
     const grid = $el(
-      "div.ComfyUI-logging-logs",
+      "div.comfy-logging-logs",
       {
         style: {
           gridTemplateColumns: `repeat(${headers.length}, 1fr)`
@@ -81121,7 +81121,7 @@ function calculateImageGrid(imgs, dw, dh) {
 }
 __name(calculateImageGrid, "calculateImageGrid");
 function createImageHost(node3) {
-  const el = $el("div.ComfyUI-img-preview");
+  const el = $el("div.comfy-img-preview");
   let currentImgs;
   let first = true;
   function updateSize() {
@@ -81134,9 +81134,9 @@ function createImageHost(node3) {
         if (elH < 190) {
           elH = 190;
         }
-        el.style.setProperty("--ComfyUI-widget-min-height", elH.toString());
+        el.style.setProperty("--comfy-widget-min-height", elH.toString());
       } else {
-        el.style.setProperty("--ComfyUI-widget-min-height", null);
+        el.style.setProperty("--comfy-widget-min-height", null);
       }
       const nw = node3.size[0];
       ({ cellWidth: w, cellHeight: h2 } = calculateImageGrid(
@@ -81146,8 +81146,8 @@ function createImageHost(node3) {
       ));
       w += "px";
       h2 += "px";
-      el.style.setProperty("--ComfyUI-img-preview-width", w);
-      el.style.setProperty("--ComfyUI-img-preview-height", h2);
+      el.style.setProperty("--comfy-img-preview-width", w);
+      el.style.setProperty("--comfy-img-preview-height", h2);
     }
   }
   __name(updateSize, "updateSize");
@@ -84184,7 +84184,7 @@ class ComfyAsyncDialog extends ComfyDialog$1 {
   #resolve;
   constructor(actions) {
     super(
-      "dialog.ComfyUI-dialog.comfyui-dialog",
+      "dialog.comfy-dialog.comfyui-dialog",
       actions?.map((opt) => {
         if (typeof opt === "string") {
           opt = { text: opt };
@@ -94196,7 +94196,7 @@ function render$e(_ctx, _cache, $props, $setup, $data, $options) {
 __name(render$e, "render$e");
 script$f.render = render$e;
 const _withScopeId$a = /* @__PURE__ */ __name((n) => (pushScopeId("data-v-100ab5c6"), n = n(), popScopeId(), n), "_withScopeId$a");
-const _hoisted_1$t = { class: "ComfyUI-vue-side-bar-header" };
+const _hoisted_1$t = { class: "comfy-vue-side-bar-header" };
 const _hoisted_2$i = { class: "text-sm" };
 const _sfc_main$o = /* @__PURE__ */ defineComponent({
   __name: "SidebarTabTemplate",
@@ -94208,7 +94208,7 @@ const _sfc_main$o = /* @__PURE__ */ defineComponent({
     const props = __props;
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
-        class: normalizeClass(["ComfyUI-vue-side-bar-container flex flex-col h-full", props.class])
+        class: normalizeClass(["comfy-vue-side-bar-container flex flex-col h-full", props.class])
       }, [
         createBaseVNode("div", _hoisted_1$t, [
           createVNode(unref(script$f), { class: "flex-shrink-0 border-x-0 border-t-0 rounded-none px-2 py-1 min-h-8" }, {
@@ -94222,7 +94222,7 @@ const _sfc_main$o = /* @__PURE__ */ defineComponent({
           }),
           renderSlot(_ctx.$slots, "header", {}, void 0, true)
         ]),
-        createVNode(unref(script$G), { class: "ComfyUI-vue-side-bar-body flex-grow h-0" }, {
+        createVNode(unref(script$G), { class: "comfy-vue-side-bar-body flex-grow h-0" }, {
           default: withCtx(() => [
             renderSlot(_ctx.$slots, "body", {}, void 0, true)
           ]),
@@ -99534,20 +99534,20 @@ const _sfc_main$b = /* @__PURE__ */ defineComponent({
       return openBlock(), createElementBlock(Fragment, null, [
         !imageBroken.value ? (openBlock(), createElementBlock("span", {
           key: 0,
-          class: normalizeClass(["ComfyUI-image-wrap", [{ contain: _ctx.contain }]])
+          class: normalizeClass(["comfy-image-wrap", [{ contain: _ctx.contain }]])
         }, [
           _ctx.contain ? (openBlock(), createElementBlock("img", {
             key: 0,
             src: _ctx.src,
             onError: handleImageError,
             "data-test": _ctx.src,
-            class: "ComfyUI-image-blur",
+            class: "comfy-image-blur",
             style: normalizeStyle({ "background-image": `url(${_ctx.src})` })
           }, null, 44, _hoisted_1$b)) : createCommentVNode("", true),
           createBaseVNode("img", {
             src: _ctx.src,
             onError: handleImageError,
-            class: normalizeClass(["ComfyUI-image-main", [...classArray.value]])
+            class: normalizeClass(["comfy-image-main", [...classArray.value]])
           }, null, 42, _hoisted_2$8)
         ], 2)) : createCommentVNode("", true),
         imageBroken.value ? (openBlock(), createElementBlock("div", _hoisted_3$6, [

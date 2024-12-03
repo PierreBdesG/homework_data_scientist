@@ -2,8 +2,8 @@ import torch
 from torch import nn
 from .ldm.modules.attention import CrossAttention
 from inspect import isfunction
-import ComfyUI.ops
-ops = ComfyUI.ops.manual_cast
+import comfy.ops
+ops = comfy.ops.manual_cast
 
 def exists(val):
     return val is not None

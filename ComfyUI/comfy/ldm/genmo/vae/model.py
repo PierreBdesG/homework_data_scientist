@@ -10,10 +10,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange
 
-from ComfyUI.ldm.modules.attention import optimized_attention
+from comfy.ldm.modules.attention import optimized_attention
 
-import ComfyUI.ops
-ops = ComfyUI.ops.disable_weight_init
+import comfy.ops
+ops = comfy.ops.disable_weight_init
 
 # import mochi_preview.dit.joint_model.context_parallel as cp
 # from mochi_preview.vae.cp_conv import cp_pass_frames, gather_all_frames

@@ -1,7 +1,7 @@
-from ComfyUI import sd1_clip
-import ComfyUI.text_encoders.t5
-import ComfyUI.text_encoders.sd3_clip
-import ComfyUI.model_management
+from comfy import sd1_clip
+import comfy.text_encoders.t5
+import comfy.text_encoders.sd3_clip
+import comfy.model_management
 from transformers import T5TokenizerFast
 import torch
 import os
@@ -34,10 +34,10 @@ class FluxTokenizer:
 class FluxClipModel(torch.nn.Module):
     def __init__(self, dtype_t5=None, device="cpu", dtype=None, model_options={}):
         super().__init__()
-        dtype_t5 = ComfyUI.model_management.pick_weight_dtype(dtype_t5, dtype, device)
+        dtype_t5 = comfy.model_management.pick_weight_dtype(dtype_t5, dtype, device)
         clip_l_class = model_options.get("clip_l_class", sd1_clip.SDClipModel)
         self.clip_l = clip_l_class(device=device, dtype=dtype, return_projected_pooled=False, model_options=model_options)
-        self.t5xxl = ComfyUI.text_encoders.sd3_clip.T5XXLModel(device=device, dtype=dtype_t5, model_options=model_options)
+        self.t5xxl = comfy.text_encoders.sd3_clip.T5XXLModel(device=device, dtype=dtype_t5, model_options=model_options)
         self.dtypes = set([dtype, dtype_t5])
 
     def set_clip_options(self, options):

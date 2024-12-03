@@ -8,7 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange
 # from flash_attn import flash_attn_varlen_qkvpacked_func
-from ComfyUI.ldm.modules.attention import optimized_attention
+from comfy.ldm.modules.attention import optimized_attention
 
 from .layers import (
     FeedForward,
@@ -27,13 +27,13 @@ from .utils import (
     modulate,
 )
 
-import ComfyUI.ldm.common_dit
-import ComfyUI.ops
+import comfy.ldm.common_dit
+import comfy.ops
 
 
 def modulated_rmsnorm(x, scale, eps=1e-6):
     # Normalize and modulate
-    x_normed = ComfyUI.ldm.common_dit.rms_norm(x, eps=eps)
+    x_normed = comfy.ldm.common_dit.rms_norm(x, eps=eps)
     x_modulated = x_normed * (1 + scale.unsqueeze(1))
 
     return x_modulated
@@ -44,7 +44,7 @@ def residual_tanh_gated_rmsnorm(x, x_res, gate, eps=1e-6):
     tanh_gate = torch.tanh(gate).unsqueeze(1)
 
     # Normalize and apply gated scaling
-    x_normed = ComfyUI.ldm.common_dit.rms_norm(x_res, eps=eps) * tanh_gate
+    x_normed = comfy.ldm.common_dit.rms_norm(x_res, eps=eps) * tanh_gate
 
     # Apply residual connection
     output = x + x_normed
@@ -471,7 +471,7 @@ class AsymmDiTJoint(nn.Module):
             T, pH=pH, pW=pW, device=x.device, dtype=torch.float32
         )  # (N, 3)
         rope_cos, rope_sin = compute_mixed_rotation(
-            freqs=ComfyUI.ops.cast_to(self.pos_frequencies, dtype=x.dtype, device=x.device), pos=pos
+            freqs=comfy.ops.cast_to(self.pos_frequencies, dtype=x.dtype, device=x.device), pos=pos
         )  # Each are (N, num_heads, dim // 2)
 
         c_t = self.t_embedder(1 - sigma, out_dtype=x.dtype)  # (B, D)

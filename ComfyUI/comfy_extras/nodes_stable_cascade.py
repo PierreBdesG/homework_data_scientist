@@ -18,7 +18,7 @@
 
 import torch
 import nodes
-import ComfyUI.utils
+import comfy.utils
 
 
 class StableCascade_EmptyLatentImage:
@@ -71,7 +71,7 @@ class StableCascade_StageC_VAEEncode:
         out_width = (width // compression) * vae.downscale_ratio
         out_height = (height // compression) * vae.downscale_ratio
 
-        s = ComfyUI.utils.common_upscale(image.movedim(-1, 1), out_width, out_height, "bicubic", "center").movedim(1, -1)
+        s = comfy.utils.common_upscale(image.movedim(-1,1), out_width, out_height, "bicubic", "center").movedim(1,-1)
 
         c_latent = vae.encode(s[:,:,:,:3])
         b_latent = torch.zeros([c_latent.shape[0], 4, (height // 8) * 2, (width // 8) * 2])

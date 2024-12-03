@@ -1,6 +1,6 @@
 import os
 import importlib.util
-from ComfyUI.cli_args import args
+from comfy.cli_args import args
 import subprocess
 
 #Can't use pytorch to get the GPU names because the cuda malloc has to be set before the first import.

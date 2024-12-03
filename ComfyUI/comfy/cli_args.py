@@ -2,7 +2,7 @@ import argparse
 import enum
 import os
 from typing import Optional
-import ComfyUI.options
+import comfy.options
 
 
 class EnumAction(argparse.Action):
@@ -175,7 +175,7 @@ parser.add_argument(
 
 parser.add_argument("--user-directory", type=is_valid_directory, default=None, help="Set the ComfyUI user directory with an absolute path.")
 
-if ComfyUI.options.args_parsing:
+if comfy.options.args_parsing:
     args = parser.parse_args()
 else:
     args = parser.parse_args([])

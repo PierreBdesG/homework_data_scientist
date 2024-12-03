@@ -20,7 +20,7 @@
 import torch
 import math
 import struct
-import ComfyUI.checkpoint_pickle
+import comfy.checkpoint_pickle
 import safetensors.torch
 import numpy as np
 from PIL import Image
@@ -40,7 +40,7 @@ def load_torch_file(ckpt, safe_load=False, device=None):
         if safe_load:
             pl_sd = torch.load(ckpt, map_location=device, weights_only=True)
         else:
-            pl_sd = torch.load(ckpt, map_location=device, pickle_module=ComfyUI.checkpoint_pickle)
+            pl_sd = torch.load(ckpt, map_location=device, pickle_module=comfy.checkpoint_pickle)
         if "global_step" in pl_sd:
             logging.debug(f"Global Step: {pl_sd['global_step']}")
         if "state_dict" in pl_sd:
@@ -867,5 +867,5 @@ def reshape_mask(input_mask, output_shape):
     mask = torch.nn.functional.interpolate(input_mask, size=output_shape[2:], mode=scale_mode)
     if mask.shape[1] < output_shape[1]:
         mask = mask.repeat((1, output_shape[1]) + (1,) * dims)[:,:output_shape[1]]
-    mask = ComfyUI.utils.repeat_to_batch_size(mask, output_shape[0])
+    mask = comfy.utils.repeat_to_batch_size(mask, output_shape[0])
     return mask

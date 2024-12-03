@@ -7,7 +7,7 @@ import torch.nn as nn
 from einops import rearrange
 from torch import Tensor
 
-from ComfyUI.ldm.modules.diffusionmodules.mmdit import DismantledBlock, PatchEmbed, VectorEmbedder, TimestepEmbedder, get_2d_sincos_pos_embed_torch
+from comfy.ldm.modules.diffusionmodules.mmdit import DismantledBlock, PatchEmbed, VectorEmbedder, TimestepEmbedder, get_2d_sincos_pos_embed_torch
 
 
 class ControlNetEmbedder(nn.Module):

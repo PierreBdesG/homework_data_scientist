@@ -1,8 +1,8 @@
 import nodes
 import node_helpers
 import torch
-import ComfyUI.model_management
-import ComfyUI.model_sampling
+import comfy.model_management
+import comfy.model_sampling
 import math
 
 class EmptyLTXVLatentVideo:
@@ -18,7 +18,7 @@ class EmptyLTXVLatentVideo:
     CATEGORY = "latent/video/ltxv"
 
     def generate(self, width, height, length, batch_size=1):
-        latent = torch.zeros([batch_size, 128, ((length - 1) // 8) + 1, height // 32, width // 32], device=ComfyUI.model_management.intermediate_device())
+        latent = torch.zeros([batch_size, 128, ((length - 1) // 8) + 1, height // 32, width // 32], device=comfy.model_management.intermediate_device())
         return ({"samples": latent}, )
 
 
@@ -41,13 +41,13 @@ class LTXVImgToVideo:
     FUNCTION = "generate"
 
     def generate(self, positive, negative, image, vae, width, height, length, batch_size):
-        pixels = ComfyUI.utils.common_upscale(image.movedim(-1, 1), width, height, "bilinear", "center").movedim(1, -1)
+        pixels = comfy.utils.common_upscale(image.movedim(-1, 1), width, height, "bilinear", "center").movedim(1, -1)
         encode_pixels = pixels[:, :, :, :3]
         t = vae.encode(encode_pixels)
         positive = node_helpers.conditioning_set_values(positive, {"guiding_latent": t})
         negative = node_helpers.conditioning_set_values(negative, {"guiding_latent": t})
 
-        latent = torch.zeros([batch_size, 128, ((length - 1) // 8) + 1, height // 32, width // 32], device=ComfyUI.model_management.intermediate_device())
+        latent = torch.zeros([batch_size, 128, ((length - 1) // 8) + 1, height // 32, width // 32], device=comfy.model_management.intermediate_device())
         latent[:, :, :t.shape[2]] = t
         return (positive, negative, {"samples": latent}, )
 
@@ -100,8 +100,8 @@ class ModelSamplingLTXV:
         b = base_shift - mm * x1
         shift = (tokens) * mm + b
 
-        sampling_base = ComfyUI.model_sampling.ModelSamplingFlux
-        sampling_type = ComfyUI.model_sampling.CONST
+        sampling_base = comfy.model_sampling.ModelSamplingFlux
+        sampling_type = comfy.model_sampling.CONST
 
         class ModelSamplingAdvanced(sampling_base, sampling_type):
             pass

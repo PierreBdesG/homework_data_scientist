@@ -1,5 +1,5 @@
-import ComfyUI.model_patcher
-import ComfyUI.samplers
+import comfy.model_patcher
+import comfy.samplers
 import re
 
 
@@ -54,16 +54,16 @@ class SkipLayerGuidanceDiT:
             model_options = args["model_options"].copy()
 
             for layer in double_layers:
-                model_options = ComfyUI.model_patcher.set_model_options_patch_replace(model_options, skip, "dit", "double_block", layer)
+                model_options = comfy.model_patcher.set_model_options_patch_replace(model_options, skip, "dit", "double_block", layer)
 
             for layer in single_layers:
-                model_options = ComfyUI.model_patcher.set_model_options_patch_replace(model_options, skip, "dit", "single_block", layer)
+                model_options = comfy.model_patcher.set_model_options_patch_replace(model_options, skip, "dit", "single_block", layer)
 
             model_sampling.percent_to_sigma(start_percent)
 
             sigma_ = sigma[0].item()
             if scale > 0 and sigma_ >= sigma_end and sigma_ <= sigma_start:
-                (slg,) = ComfyUI.samplers.calc_cond_batch(model, [cond], x, sigma, model_options)
+                (slg,) = comfy.samplers.calc_cond_batch(model, [cond], x, sigma, model_options)
                 cfg_result = cfg_result + (cond_pred - slg) * scale
             return cfg_result
 

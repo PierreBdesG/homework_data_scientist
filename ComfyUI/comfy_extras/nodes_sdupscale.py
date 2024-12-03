@@ -1,5 +1,5 @@
 import torch
-import ComfyUI.utils
+import comfy.utils
 
 class SD_4XUpscale_Conditioning:
     @classmethod
@@ -21,7 +21,7 @@ class SD_4XUpscale_Conditioning:
         width = max(1, round(images.shape[-2] * scale_ratio))
         height = max(1, round(images.shape[-3] * scale_ratio))
 
-        pixels = ComfyUI.utils.common_upscale((images.movedim(-1, 1) * 2.0) - 1.0, width // 4, height // 4, "bilinear", "center")
+        pixels = comfy.utils.common_upscale((images.movedim(-1,1) * 2.0) - 1.0, width // 4, height // 4, "bilinear", "center")
 
         out_cp = []
         out_cn = []
