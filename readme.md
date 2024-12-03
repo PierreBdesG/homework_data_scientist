@@ -1,12 +1,13 @@
 # Homework - Data Scientist
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1gLR1Q_BwajrvTjCG9yR5YVebq7TXBMPX?usp=sharing)
 
 ## Description
 
-Ce dépôt permet d'exécuter un workflow ComfyUI directement depuis la ligne de commande.
-Lors d'une exploration dans ComfyUI, le workflow peut être récupéré en accédant au menu situé en haut à droite : Workflow -> Export (API).
+Ce repo permet d'exécuter un workflow ComfyUI directement depuis une ligne de commande.
+Lors d'une exploration dans ComfyUI, le workflow peut être récupéré en accédant au menu situé en haut à droite : `Workflow -> Export (API)`.
 ## Exemple d'utilisation
 ### prerequis
-Il est nécessaire de télécharger au préalable le modèle sur lequel vous souhaitez effectuer une inférence. Par exemple, vous pouvez utiliser ce modèle : [v1-5-pruned-emaonly.safetensors](https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5/blob/main/v1-5-pruned-emaonly.safetensors)
+Il est nécessaire de télécharger au préalable le modèle sur lequel vous souhaitez inférer. Par exemple, vous pouvez utiliser ce modèle : [v1-5-pruned-emaonly.safetensors](https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5/blob/main/v1-5-pruned-emaonly.safetensors)
 
 Une fois téléchargé, placez-le dans le dossier suivant :
 `ComfyUI/models/checkpoints.`
