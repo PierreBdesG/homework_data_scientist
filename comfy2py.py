@@ -2,7 +2,7 @@ import sys
 import os
 
 current_dir = os.path.dirname(__file__)
-utils_path = os.path.join(current_dir, "ComfyUI")
+utils_path = os.path.join(current_dir, "comfy")
 sys.path.append(utils_path)
 
 import json
@@ -10,8 +10,8 @@ import json
 import argparse
 
 from utils import pass_argument_to_workflow
-from ComfyUI.execution import PromptExecutor
-from ComfyUI.server import PromptServer
+from comfy.execution import PromptExecutor
+from comfy.server import PromptServer
 
 def execute(workflow):
     e = PromptExecutor(PromptServer(None))
@@ -19,7 +19,7 @@ def execute(workflow):
 
 if __name__ == "__main__":
     # Configuration d'argparse
-    parser = argparse.ArgumentParser(description="Run a ComfyUI workflow")
+    parser = argparse.ArgumentParser(description="Run a comfy workflow")
 
     # Définir les arguments attendus
     parser.add_argument("--prompt", type=str, default="test", help="The prompt describing the desired image(s).")
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=1, help="Seed for random generation.")
     parser.add_argument("--cfg", type=float, default=8.0, help="Classifier-Free Guidance scale.")
     parser.add_argument("--denois", type=float, default=1, help="Denois quantity")
-    parser.add_argument("--filename-prefix", type=str, default="ComfyUI", help="Directory to save the generated images.")
+    parser.add_argument("--filename-prefix", type=str, default="comfy", help="Directory to save the generated images.")
     parser.add_argument("--num-images-per-prompt", type=int, default=1, help="Number of images to generate per prompt.")
     parser.add_argument("--random-seed_after-every-gen", type=bool, default=True, help="Randomize seed after every generation.")
     parser.add_argument("--sampler-name", type=str, default="euler", help="Sampler to use.")
