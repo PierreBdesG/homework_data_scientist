@@ -3,4 +3,4 @@
 .idea/
 generator/__pycache__/
 __pycache__/
-comfy/models/checkpoints/v1-5-pruned-emaonly.safetensors
+ComfyUI/models/checkpoints/v1-5-pruned-emaonly.safetensors
