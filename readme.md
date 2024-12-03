@@ -2,11 +2,16 @@
 
 ## Description
 
-Ce repo permet de générer des images à partir de lignes de commande en utilisant des modèles compatible avec `Diffusers`. Il offre une interface simple et flexible pour personnaliser la génération d'images en fonction de divers paramètres. Utilisez la commande Python fournie pour générer des images avec vos prompts.
-
+Ce dépôt permet d'exécuter un workflow ComfyUI directement depuis la ligne de commande.
+Lors d'une exploration dans ComfyUI, le workflow peut être récupéré en accédant au menu situé en haut à droite : Workflow -> Export (API).
 ## Exemple d'utilisation
+### prerequis
+Il est nécessaire de télécharger au préalable le modèle sur lequel vous souhaitez effectuer une inférence. Par exemple, vous pouvez utiliser ce modèle : [v1-5-pruned-emaonly.safetensors](https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5/blob/main/v1-5-pruned-emaonly.safetensors)
 
-Vous pouvez générer une image en exécutant la commande suivante, le resultat sera stocker dans un dossier `output_images` :
+Une fois téléchargé, placez-le dans le dossier suivant :
+`ComfyUI/models/checkpoints.`
+
+Vous pouvez ensuite générer une image en exécutant la commande suivante, le resultat sera stocker dans un dossier `ComfyUI/output` :
 
 ```bash
 python comfy2py.py --prompt="a beautiful forest in autumn" --neg-prompt="no snow, no fog"
@@ -17,6 +22,10 @@ python comfy2py.py --prompt="a beautiful forest in autumn" --neg-prompt="no snow
 `--prompt`
 - **Type** : Union[List[str], str]
 - **Description** : Le ou les prompts décrivant ce que vous souhaitez voir généré. 
+
+`--workflow-path`
+- **Type** : str
+- **Description** : Le chemin vers le fichier json du workflow (API). 
 
 ` --neg-prompt`
 - **Type** : Optional[Union[List[str], str]]
