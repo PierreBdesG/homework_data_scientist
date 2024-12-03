@@ -41,7 +41,6 @@ if __name__ == "__main__":
     parser.add_argument("--random-seed_after-every-gen", type=bool, default=True, help="Randomize seed after every generation.")
     parser.add_argument("--sampler-name", type=str, default="euler", help="Sampler to use.")
     parser.add_argument("--scheduler", type=str, default="normal", help="Scheduler to use.")
-    parser.add_argument("--device", type=str, default=None, help="Device to use (e.g., 'cuda').")
 
     args = parser.parse_args()
     execute(args)

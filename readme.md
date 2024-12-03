@@ -76,12 +76,4 @@ python comfy2py.py --prompt="a beautiful forest in autumn" --neg-prompt="no snow
 - **Type** : Optional[str]
 - **Description** : Le type de planificateur à utiliser. `normal` par default.
 
-` --device`
-- **Type** : Optional[str]
-- **Description** : Le périphérique à utiliser pour la génération (ex: "cuda" pour GPU). Si laissé vide, le périphérique par défaut sera utilisé.
-
-
-
-
-
 
